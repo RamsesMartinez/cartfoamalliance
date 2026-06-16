@@ -1,0 +1,4 @@
+# Sitio estático: Netlify publica la carpeta tal cual, sin build.
+[build]
+  publish = "."
+  command = ""

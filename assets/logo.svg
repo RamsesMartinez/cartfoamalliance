@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Cartfoam Alliance Site">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4b063"/>
+      <stop offset="1" stop-color="#d8822f"/>
+    </linearGradient>
+  </defs>
+  <!-- cajas apiladas estilizadas -->
+  <path d="M32 6 54 17 32 28 10 17z" fill="url(#g)"/>
+  <path d="M32 24 54 35 32 46 10 35z" fill="url(#g)" opacity=".8"/>
+  <path d="M32 42 54 53 32 64 10 53z" fill="url(#g)" opacity=".6"/>
+</svg>

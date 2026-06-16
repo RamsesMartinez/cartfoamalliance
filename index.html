@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartfoam Alliance Site — Soluciones de empaque</title>
+<meta name="description" content="Soluciones de empaque en foam y cartón corrugado. Calculadora de empaques y desarrollo de cajas. Cd. Juárez, Chihuahua.">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<aside class="sidebar" id="sidebar">
+  <a class="brand" href="#inicio">
+    <img src="assets/logo.svg" alt="" width="40" height="40">
+    <span class="brand-text">
+      <strong>CARTFOAM<br>ALLIANCE SITE</strong>
+      <small>PACKAGING SUPPLY</small>
+    </span>
+  </a>
+  <nav class="nav">
+    <a href="#inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Inicio</a>
+    <a href="#calculadora"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h2"/></svg>Calculadora IA</a>
+    <a href="#desarrollo"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>Desarrollo</a>
+    <a href="#materiales"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Materiales</a>
+    <a href="#industrias"><svg viewBox="0 0 24 24"><path d="M3 21V8l6-3v4l6-3v4l6-3v14z"/></svg>Industrias</a>
+    <a href="#nosotros"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M15 20c0-2 2-3.5 4-3.5"/></svg>Nosotros</a>
+    <a href="#contacto"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Contacto</a>
+  </nav>
+</aside>
+
+<button class="nav-toggle" id="navToggle" aria-label="Menú" aria-expanded="false">
+  <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+</button>
+
+<!-- ===== Contenido ===== -->
+<main class="content">
+
+  <a href="#contacto" class="cta-top">COTIZA AHORA <span>→</span></a>
+
+  <!-- Hero -->
+  <section id="inicio" class="hero">
+    <div class="hero-bg"><img src="assets/hero.svg" alt="" loading="eager"></div>
+    <div class="hero-inner">
+      <h1>LO QUE PROTEGE,<br><span class="gold">TAMBIÉN IMPORTA.</span></h1>
+      <p class="lead">Soluciones de empaque que cuidan lo que más valoras.</p>
+      <div class="hero-badges">
+        <div class="hbadge"><b>PROTECCIÓN</b><span>que da confianza</span></div>
+        <div class="hbadge"><b>DISEÑO</b><span>que inspira</span></div>
+        <div class="hbadge"><b>CALIDAD CERTIFICADA</b><span>ISO 9001:2015</span></div>
+      </div>
+      <div class="seal">✔ Calidad certificada<br><small>ISO 9001:2015</small></div>
+    </div>
+  </section>
+
+  <!-- Calculadora -->
+  <section id="calculadora" class="section">
+    <div class="calc-grid">
+      <div class="calc-intro">
+        <h2><span class="gold">Calculadora IA</span><br>de Empaques</h2>
+        <p>Ingresa las dimensiones internas y el tipo de material: el sistema desarrolla
+           el troquel de tu empaque automáticamente.</p>
+        <!-- diagrama de caja abierta; las cotas se actualizan con el formulario -->
+        <svg class="box3d" viewBox="0 0 320 240" aria-label="Caja con dimensiones">
+          <g fill="none" stroke="#c98a4a" stroke-width="2">
+            <path d="M60 120 L160 90 L260 120 L160 150 Z" fill="#3a2c1c"/>
+            <path d="M60 120 L60 190 L160 220 L160 150 Z" fill="#2a2114"/>
+            <path d="M260 120 L260 190 L160 220 L160 150 Z" fill="#23190f"/>
+            <path d="M60 120 L40 95 L140 65 L160 90" stroke="#9c6a35"/>
+            <path d="M260 120 L280 95 L180 65 L160 90" stroke="#9c6a35"/>
+          </g>
+          <text id="cota-largo" class="cota" x="220" y="80">350 mm</text>
+          <text id="cota-ancho" class="cota" x="95" y="80">250 mm</text>
+          <text id="cota-alto"  class="cota" x="285" y="160">200 mm</text>
+        </svg>
+      </div>
+
+      <form class="calc-form" id="calcForm">
+        <fieldset>
+          <legend>Tipo de material</legend>
+          <label class="radio"><input type="radio" name="flauta" value="sencilla" checked> Flauta sencilla</label>
+          <label class="radio"><input type="radio" name="flauta" value="doble"> Flauta doble</label>
+        </fieldset>
+        <fieldset>
+          <legend>Dimensiones internas (mm)</legend>
+          <div class="dims">
+            <label>Largo<input type="number" id="largo" min="1" value="350" inputmode="numeric"></label>
+            <label>Ancho<input type="number" id="ancho" min="1" value="250" inputmode="numeric"></label>
+            <label>Alto<input type="number" id="alto" min="1" value="200" inputmode="numeric"></label>
+          </div>
+        </fieldset>
+        <button type="submit" class="btn-gold">GENERAR DESARROLLO <span>⚙</span></button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Desarrollo -->
+  <section id="desarrollo" class="section">
+    <h2>Desarrollo <span class="gold">Automático</span></h2>
+    <p class="muted">Obtén al instante el desarrollo de tu caja con las medidas exactas de cada
+       panel y flap, listo para producción.</p>
+    <div id="troquel" class="troquel"><!-- SVG generado por app.js --></div>
+    <p id="troquelResumen" class="troquel-resumen muted"></p>
+  </section>
+
+  <!-- Materiales -->
+  <section id="materiales" class="section">
+    <h2>Materiales que marcan <span class="gold">la diferencia</span></h2>
+    <div class="mat-grid">
+      <article class="mat-card">
+        <div class="mat-img" data-fallback="foam"><img src="assets/foam.svg" alt="Foam EPE"></div>
+        <div class="mat-body">
+          <h3>Foam EPE</h3>
+          <ul>
+            <li>Ligero y resistente</li><li>Absorción de impacto</li>
+            <li>Reciclable</li><li>Resistente a humedad</li>
+          </ul>
+          <p class="apps"><b>Aplicaciones:</b> Electrónica, automotriz, médica, aeroespacial y más.</p>
+        </div>
+      </article>
+      <article class="mat-card">
+        <div class="mat-img" data-fallback="corrugado"><img src="assets/corrugado.svg" alt="Cartón corrugado"></div>
+        <div class="mat-body">
+          <h3>Cartón Corrugado</h3>
+          <ul>
+            <li>Reciclable y sostenible</li><li>Alta resistencia</li>
+            <li>Personalizable</li><li>Impresión disponible</li>
+          </ul>
+          <p class="apps"><b>Aplicaciones:</b> Retail, e-commerce, exportación y más.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Nosotros -->
+  <section id="nosotros" class="section">
+    <h2 class="gold">Nosotros</h2>
+    <div class="nos-grid">
+      <p>Cartfoam Alliance Site desarrolla soluciones de empaque en foam y cartón para la
+         industria manufacturera. Diseñamos sistemas de protección, empaques personalizados y
+         proyectos innovadores enfocados en calidad, mejora continua y satisfacción del cliente.</p>
+      <p>Desde 2023 trabajamos en optimizar procesos, proteger productos y ofrecer un servicio
+         confiable respaldado por estándares de excelencia.</p>
+    </div>
+    <div class="badges">
+      <div class="badge">Enfoque en calidad</div>
+      <div class="badge">Innovación constante</div>
+      <div class="badge">Soluciones a la medida</div>
+      <div class="badge">Compromiso total</div>
+    </div>
+  </section>
+
+  <!-- Industrias -->
+  <section id="industrias" class="section industrias">
+    <h3>Industrias que confían en nosotros</h3>
+    <div class="ind-grid">
+      <div class="ind"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 21v-4h6v4"/></svg>Electrónica</div>
+      <div class="ind"><svg viewBox="0 0 24 24"><path d="M3 13l2-5h14l2 5v5H3z"/><circle cx="7" cy="18" r="1.5"/><circle cx="17" cy="18" r="1.5"/></svg>Automotriz</div>
+      <div class="ind"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg>Médica</div>
+      <div class="ind"><svg viewBox="0 0 24 24"><path d="M2 12l20-8-8 20-2-8z"/></svg>Aeroespacial</div>
+      <div class="ind"><svg viewBox="0 0 24 24"><path d="M4 20V9l8-5 8 5v11M9 20v-6h6v6"/></svg>Mobiliario</div>
+      <div class="ind"><svg viewBox="0 0 24 24"><path d="M5 7h14l-1 13H6z"/><path d="M9 7a3 3 0 016 0"/></svg>Retail</div>
+    </div>
+  </section>
+
+  <!-- Footer / Contacto -->
+  <footer id="contacto" class="footer">
+    <div class="foot-grid">
+      <div>
+        <img src="assets/logo.svg" alt="" width="36" height="36">
+        <p>© 2024 Cartfoam Alliance Site</p>
+        <a href="mailto:ingenieria@cartfoam.com.mx">ingenieria@cartfoam.com.mx</a>
+      </div>
+      <div>
+        <span class="foot-label">Síguenos</span>
+        <div class="social">
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 9h3V6h-3c-2 0-3 1-3 3v2H9v3h2v6h3v-6h2.5l.5-3H14V9z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 10v7M7 7v.01M11 17v-4a2 2 0 014 0v4" stroke="#0a0f1e" fill="none" stroke-width="2"/></svg></a>
+          <a href="https://wa.me/526571901281" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 00-7.7 13.6L3 21l4.5-1.2A9 9 0 1012 3z"/><path d="M8.5 8.5c1 3 3 5 6 6l1.5-1.5-2-1-1 .8c-1.2-.6-2-1.4-2.6-2.6l.8-1-1-2z" fill="#0a0f1e"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <a href="tel:+526571901281" class="phone">📞 657 190 1281</a>
+        <p class="addr">📍 Cd. Juárez, Chihuahua, México</p>
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<script src="dieline.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

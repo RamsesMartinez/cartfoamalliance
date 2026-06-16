@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Placeholder hero — reemplazar por render real">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a2238"/>
+      <stop offset=".55" stop-color="#2a2335"/>
+      <stop offset="1" stop-color="#d8822f" stop-opacity=".55"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <!-- silueta de edificio -->
+  <rect x="640" y="430" width="520" height="370" fill="#0c1120" opacity=".85"/>
+  <g fill="#f4b063" opacity=".18">
+    <rect x="680" y="470" width="60" height="40"/><rect x="760" y="470" width="60" height="40"/>
+    <rect x="840" y="470" width="60" height="40"/><rect x="920" y="470" width="60" height="40"/>
+    <rect x="1000" y="470" width="60" height="40"/><rect x="680" y="540" width="60" height="40"/>
+    <rect x="760" y="540" width="60" height="40"/><rect x="840" y="540" width="60" height="40"/>
+  </g>
+  <!-- cajas flotando (capas) -->
+  <g opacity=".9">
+    <path d="M300 230 470 300 300 370 130 300z" fill="#e8ecf5" opacity=".9"/>
+    <path d="M300 320 470 390 300 460 130 390z" fill="#f4b063" opacity=".8"/>
+    <path d="M300 410 470 480 300 550 130 480z" fill="#c98a4a" opacity=".8"/>
+  </g>
+  <text x="600" y="120" fill="#97a0b5" font-family="sans-serif" font-size="34" text-anchor="middle" opacity=".8">imagen hero — reemplazar</text>
+</svg>
