@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="Placeholder Foam EPE">
-  <rect width="600" height="400" fill="#d7dbe2"/>
-  <rect x="40" y="60" width="520" height="280" rx="8" fill="#eef1f5" stroke="#b9bfc9" stroke-width="3"/>
-  <g fill="#cdd3dc"><circle cx="140" cy="160" r="22"/><circle cx="220" cy="160" r="22"/><circle cx="300" cy="160" r="22"/><circle cx="380" cy="160" r="22"/><circle cx="460" cy="160" r="22"/><circle cx="180" cy="250" r="22"/><circle cx="260" cy="250" r="22"/><circle cx="340" cy="250" r="22"/><circle cx="420" cy="250" r="22"/></g>
-  <text x="300" y="370" fill="#8a909c" font-family="sans-serif" font-size="22" text-anchor="middle">Foam EPE — reemplazar</text>
-</svg>
