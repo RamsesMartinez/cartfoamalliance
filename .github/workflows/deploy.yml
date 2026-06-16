@@ -17,12 +17,9 @@ jobs:
         if: env.CF_TOKEN == ''
         run: echo "CLOUDFLARE_API_TOKEN no configurado todavía — se omite el deploy. Configúralo con 'gh secret set'."
 
-      - name: Preparar dist limpio (solo lo publicable)
+      - name: Preparar dist limpio (con cache-busting por hash)
         if: env.CF_TOKEN != ''
-        run: |
-          mkdir -p dist/assets
-          cp index.html styles.css app.js _headers dist/
-          cp assets/logo.png assets/hero-bg.png dist/assets/
+        run: bash build-dist.sh dist
 
       - name: Deploy a Cloudflare Pages
         if: env.CF_TOKEN != ''
