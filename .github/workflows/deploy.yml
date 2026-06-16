@@ -1,0 +1,33 @@
+name: Deploy to Cloudflare Pages
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Si aún no existe el secret del token, el deploy se salta (no falla en rojo).
+      - name: Aviso si falta el token
+        if: env.CF_TOKEN == ''
+        run: echo "CLOUDFLARE_API_TOKEN no configurado todavía — se omite el deploy. Configúralo con 'gh secret set'."
+
+      - name: Preparar dist limpio (solo lo publicable)
+        if: env.CF_TOKEN != ''
+        run: |
+          mkdir -p dist/assets
+          cp index.html styles.css app.js dist/
+          cp assets/logo.png assets/hero-bg.png dist/assets/
+
+      - name: Deploy a Cloudflare Pages
+        if: env.CF_TOKEN != ''
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=cartfoamalliance --branch=main
