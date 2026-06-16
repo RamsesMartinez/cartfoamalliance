@@ -1585,3 +1585,90 @@ body {
     text-align: center;
   }
 }
+
+/* ==========================================
+   TOP NAV LAYOUT (PDF) — override del sidebar
+   ========================================== */
+.sidebar { display: none !important; }
+.app-container { display: block; }
+.main-content { margin-left: 0; width: 100%; }
+
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+  padding: 0.75rem 3rem;
+  background: rgba(2, 4, 7, 0.72);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--glass-border);
+}
+.topnav { display: flex; align-items: center; gap: 2rem; }
+.topnav .nav-link {
+  color: var(--text-secondary); text-decoration: none;
+  font-family: 'Outfit', sans-serif; font-size: 0.82rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1px; padding: 0.3rem 0;
+  transition: var(--transition-fast);
+}
+.topnav .nav-link:hover { color: var(--text-primary); }
+.topnav .nav-link.active { color: var(--accent-orange); }
+.topbar-contact { display: flex; align-items: center; gap: 1.1rem; font-size: 0.72rem; color: var(--text-secondary); }
+.topbar-contact a, .topbar-contact span { color: var(--text-secondary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; transition: var(--transition-fast); }
+.topbar-contact a:hover { color: var(--accent-orange); }
+.topbar-contact i { color: var(--accent-orange); }
+
+/* Hero header: logo + CTA arriba del hero */
+.hero-header {
+  position: absolute; top: 4rem; left: 5rem; right: 5rem; z-index: 14;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.hero-logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+.hero-logo img { width: 52px; height: auto; }
+.hero-logo .hl-text { display: flex; flex-direction: column; line-height: 1.15; }
+.hero-logo strong { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 800; letter-spacing: 2px; color: #fff; }
+.hero-logo small { font-family: 'Outfit', sans-serif; font-size: 0.5rem; letter-spacing: 2px; color: var(--accent-orange); text-transform: uppercase; }
+.cta-cotiza {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  border: 1px solid var(--accent-orange); color: var(--accent-orange);
+  padding: 0.7rem 1.6rem; border-radius: 30px; text-decoration: none;
+  font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.78rem;
+  text-transform: uppercase; letter-spacing: 1px;
+  background: rgba(4, 7, 13, 0.45); backdrop-filter: blur(6px); transition: var(--transition-smooth);
+}
+.cta-cotiza:hover { background: var(--accent-orange); color: #000; }
+
+/* menu-toggle ahora vive dentro del topbar */
+.menu-toggle { position: static; box-shadow: none; }
+
+/* Dos botones en la calculadora */
+.calc-btn-container { display: flex; gap: 1rem; }
+.calc-btn-container .btn-primary { flex: 1; }
+.btn-secondary {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+  background: transparent; border: 1.5px solid var(--accent-orange); color: var(--accent-orange);
+  font-family: 'Outfit', sans-serif; font-weight: 700; text-transform: uppercase;
+  font-size: 0.8rem; letter-spacing: 1px; padding: 1rem 1.5rem; border-radius: 30px;
+  cursor: pointer; transition: var(--transition-smooth);
+}
+.btn-secondary:hover { background: var(--accent-orange); color: #000; box-shadow: 0 4px 20px rgba(255, 159, 28, 0.3); }
+
+/* "Crece al seleccionar" en materiales */
+.material-card { cursor: pointer; }
+.material-card.expanded {
+  transform: scale(1.03);
+  border-color: var(--accent-orange);
+  box-shadow: 0 25px 60px rgba(255, 159, 28, 0.18);
+}
+.material-card.expanded .material-visual { height: 300px; }
+
+@media (max-width: 992px) {
+  .topbar { padding: 0.6rem 1.2rem; flex-wrap: wrap; }
+  .topbar-contact { display: none; }
+  .menu-toggle { display: flex !important; order: 2; }
+  .topnav {
+    order: 3; width: 100%; flex-direction: column; align-items: stretch; gap: 0;
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+  }
+  .topnav.active { max-height: 420px; margin-top: 0.5rem; }
+  .topnav .nav-link { padding: 0.85rem 0.4rem; border-bottom: 1px solid var(--glass-border); }
+  .hero-header { top: 4.2rem; left: 1.5rem; right: 1.5rem; }
+  .hero-logo .hl-text { display: none; }
+}

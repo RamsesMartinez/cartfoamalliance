@@ -28,10 +28,25 @@
   <!-- Background Space Canvas -->
   <canvas id="space-canvas"></canvas>
 
-  <!-- Mobile Toggle Menu Button -->
-  <button class="menu-toggle" aria-label="Toggle Navigation">
-    <i class="fa-solid fa-bars"></i>
-  </button>
+  <!-- Top Header Bar (PDF layout) -->
+  <header class="topbar">
+    <nav class="topnav" id="topnav">
+      <a href="#inicio" class="nav-link active">Inicio</a>
+      <a href="#calculadora" class="nav-link">Crea tu caja</a>
+      <a href="#materiales" class="nav-link">Materiales</a>
+      <a href="#nosotros" class="nav-link">Nosotros</a>
+      <a href="#contacto" class="nav-link">Contacto</a>
+    </nav>
+    <div class="topbar-contact">
+      <a href="tel:+526571901281"><i class="fa-solid fa-phone"></i> 657 190 1281</a>
+      <a href="https://wa.me/526571901281" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+      <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+      <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="mailto:ingenieria@cartfoam.com.mx"><i class="fa-solid fa-envelope"></i> ingenieria@cartfoam.com.mx</a>
+      <span class="topbar-loc"><i class="fa-solid fa-location-dot"></i> Cd. Juárez, Chihuahua</span>
+    </div>
+    <button class="menu-toggle" aria-label="Menú"><i class="fa-solid fa-bars"></i></button>
+  </header>
 
   <div class="app-container">
     
@@ -101,6 +116,14 @@
       
       <!-- HERO SECTION -->
       <section id="inicio">
+        <!-- Hero top: logo + CTA (PDF) -->
+        <div class="hero-header">
+          <a href="#inicio" class="hero-logo">
+            <img src="assets/logo.png" alt="Cartfoam">
+            <span class="hl-text"><strong>CARTFOAM</strong><small>Alliance Site · Packaging Supply</small></span>
+          </a>
+          <a href="#calculadora" class="cta-cotiza">Cotiza ahora <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
         <div class="hero-bg-overlay"></div>
         <div class="hero-dark-grad"></div>
         
@@ -174,11 +197,11 @@
       <!-- CALCULADORA IA & UNIFIED CARD SECTION -->
       <section id="calculadora" class="section">
         <h2 class="section-title reveal-wrapper">
-          <span class="reveal-text">Calculadora IA</span>
-          <span class="reveal-text highlight">de Empaques</span>
+          <span class="reveal-text">Crea</span>
+          <span class="reveal-text highlight">tu caja</span>
         </h2>
         <p class="section-subtitle reveal-wrapper">
-          <span class="reveal-text">Ingresa las dimensiones internas, el tipo de material y nuestra inteligencia artificial desarrollará tu empaque automáticamente.</span>
+          <span class="reveal-text">Ingresa las dimensiones internas y el tipo de material, y tu empaque se desarrollará automáticamente.</span>
         </p>
         
         <!-- Unified Calculator Container - Matches WEB2.png exactly -->
@@ -240,9 +263,13 @@
             </div>
             
             <div class="calc-btn-container">
-              <button id="trigger-desarrollo-btn" class="btn-primary" style="width: 100%; justify-content: center;">
-                <span>Generar Desarrollo</span>
+              <button id="trigger-desarrollo-btn" class="btn-primary" style="justify-content: center;">
+                <span>Generar</span>
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </button>
+              <button id="print-dieline-btn" class="btn-secondary">
+                <span>Imprimir</span>
+                <i class="fa-solid fa-print"></i>
               </button>
             </div>
           </div>
@@ -327,6 +354,8 @@
               <li>Absorción de impacto</li>
               <li>Reutilizable</li>
               <li>Resistente a la humedad</li>
+              <li>1.4 pcf a 4 pcf</li>
+              <li>Rosa, Blanco y Negro</li>
             </ul>
             
             <div class="material-apps">
@@ -355,7 +384,10 @@
               <li>Reciclable y sostenible</li>
               <li>Alta resistencia</li>
               <li>Personalizable</li>
-              <li>Impresión disponible</li>
+              <li>Con o sin impresión</li>
+              <li>23 hasta 81 ECT</li>
+              <li>Simple, doble y triple flauta</li>
+              <li>Diferentes estilos de cajas</li>
             </ul>
             
             <div class="material-apps">

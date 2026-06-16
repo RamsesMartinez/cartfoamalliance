@@ -1415,16 +1415,16 @@ function onCalculatorUpdate() {
 // 11. SIDEBAR NAVIGATION & INTERACTIVITY
 // ==========================================
 function initNavigation() {
-  const menuLinks = document.querySelectorAll('.nav-link');
+  const menuLinks = document.querySelectorAll('.topnav .nav-link');
   const sections = document.querySelectorAll('section, footer');
-  const sidebar = document.querySelector('.sidebar');
+  const topnav = document.getElementById('topnav');
   const menuToggle = document.querySelector('.menu-toggle');
   
-  if (menuToggle && sidebar) {
+  if (menuToggle && topnav) {
     menuToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('active');
+      topnav.classList.toggle('active');
       const icon = menuToggle.querySelector('i');
-      if (sidebar.classList.contains('active')) {
+      if (topnav.classList.contains('active')) {
         icon.className = 'fa-solid fa-xmark';
       } else {
         icon.className = 'fa-solid fa-bars';
@@ -1434,7 +1434,7 @@ function initNavigation() {
     menuLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        sidebar.classList.remove('active');
+        topnav.classList.remove('active');
         menuToggle.querySelector('i').className = 'fa-solid fa-bars';
         
         const targetId = link.getAttribute('href');
@@ -1459,13 +1459,42 @@ function initNavigation() {
     });
     
     menuLinks.forEach(link => {
-      const li = link.parentElement;
-      li.classList.remove('active');
-      if (link.getAttribute('href') === `#${current}`) {
-        li.classList.add('active');
-      }
+      link.classList.toggle('active', link.getAttribute('href') === `#${current}`);
     });
   });
+}
+
+// ==========================================
+// 12. PDF EXTRAS: materiales "crece al seleccionar" + botón Imprimir
+// ==========================================
+function initPdfExtras() {
+  // "Crece al seleccionar": expandir la tarjeta de material al hacer click
+  const cards = document.querySelectorAll('.material-card');
+  cards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('a')) return; // no togglear si el clic fue en un enlace
+      const isOpen = card.classList.contains('expanded');
+      cards.forEach(c => c.classList.remove('expanded'));
+      if (!isOpen) card.classList.add('expanded');
+    });
+  });
+
+  // Botón Imprimir: abre el desarrollo (dieline) generado en una ventana y lanza impresión
+  const printBtn = document.getElementById('print-dieline-btn');
+  if (printBtn) {
+    printBtn.addEventListener('click', () => {
+      const svg = document.querySelector('#dieline-svg-container svg');
+      if (!svg) { window.print(); return; }
+      const win = window.open('', '_blank');
+      if (!win) return;
+      win.document.write('<!DOCTYPE html><html><head><title>Desarrollo Cartfoam</title></head>' +
+        '<body style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fff">' +
+        svg.outerHTML + '</body></html>');
+      win.document.close();
+      win.focus();
+      setTimeout(() => win.print(), 250);
+    });
+  }
 }
 
 // ==========================================
@@ -1483,6 +1512,7 @@ window.addEventListener('DOMContentLoaded', () => {
   run('Box3D', initBox3D);
   run('Calculator', initCalculator);
   run('ScrollReveals', initScrollReveals);
+  run('PdfExtras', initPdfExtras);
 
   // Failsafe del texto: si GSAP/ScrollTrigger no está, revela todo de inmediato.
   const revealAll = () => document.querySelectorAll('.reveal-wrapper, .reveal-card')
