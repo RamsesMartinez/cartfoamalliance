@@ -5,6 +5,22 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+// Velocidad de scroll propia: ScrollTrigger.getVelocity() ESTÁTICO no existe en GSAP 3.12
+// (solo en instancias) — el código del diseñador lo llamaba y tronaba en cada frame.
+// La rastreamos nosotros para que los efectos de scroll (estrellas + 3D) sí reaccionen.
+let __scrollVel = 0;
+(function trackScrollVelocity() {
+  if (typeof window === 'undefined') return;
+  let lastY = window.scrollY, lastT = performance.now();
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY, t = performance.now(), dt = Math.max(t - lastT, 1);
+    __scrollVel = (y - lastY) / dt * 1000; // px/s aprox
+    lastY = y; lastT = t;
+  }, { passive: true });
+  setInterval(() => { __scrollVel *= 0.9; if (Math.abs(__scrollVel) < 1) __scrollVel = 0; }, 100);
+})();
+function getScrollVelocity() { return __scrollVel; }
+
 // ==========================================
 // 1. AWWWARDS SMOOTH SCROLL (LENIS)
 // ==========================================
@@ -675,7 +691,7 @@ function initBox3D() {
     requestAnimationFrame(animate);
     
     // Slow down/speed up auto rotation based on scroll activity
-    const scrollVelocity = ScrollTrigger.getVelocity();
+    const scrollVelocity = getScrollVelocity();
     if (Math.abs(scrollVelocity) > 10) {
       boxControls.autoRotateSpeed = 0.5 + Math.min(Math.abs(scrollVelocity) * 0.001, 1.5);
     } else {
@@ -1321,7 +1337,7 @@ function initSpaceBackground() {
     requestAnimationFrame(loop);
     
     const scrollY = window.scrollY;
-    const scrollVelocity = ScrollTrigger.getVelocity();
+    const scrollVelocity = getScrollVelocity();
     
     spaceCtx.clearRect(0, 0, spaceCanvas.width, spaceCanvas.height);
     
