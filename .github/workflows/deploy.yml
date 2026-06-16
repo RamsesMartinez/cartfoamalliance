@@ -21,7 +21,7 @@ jobs:
         if: env.CF_TOKEN != ''
         run: |
           mkdir -p dist/assets
-          cp index.html styles.css app.js dist/
+          cp index.html styles.css app.js _headers dist/
           cp assets/logo.png assets/hero-bg.png dist/assets/
 
       - name: Deploy a Cloudflare Pages

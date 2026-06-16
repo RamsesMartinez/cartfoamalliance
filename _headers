@@ -1,0 +1,5 @@
+# Cloudflare Pages — forzar que el navegador SIEMPRE revalide contra el edge.
+# Con ETag, devuelve 304 (barato) si no cambió, o la versión nueva tras un deploy.
+# Así los clientes siempre tienen la última versión sin esperar a que expire la caché.
+/*
+  Cache-Control: public, max-age=0, must-revalidate
