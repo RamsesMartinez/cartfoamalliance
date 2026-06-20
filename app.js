@@ -176,29 +176,32 @@ function createCardboardTexture() {
   canvas.height = 256;
   const ctx = canvas.getContext('2d');
   
-  // Base kraft brown color
-  ctx.fillStyle = '#b68d68';
+  // Base kraft con leve degradado
+  const grad = ctx.createLinearGradient(0, 0, 256, 256);
+  grad.addColorStop(0, '#c29871');
+  grad.addColorStop(1, '#a87c54');
+  ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 256, 256);
-  
-  // Draw paper fibers (fine horizontal lines)
-  ctx.strokeStyle = '#a47c57';
-  ctx.lineWidth = 1;
-  for (let i = 0; i < 150; i++) {
+
+  // Fibras de papel kraft (más densas y variadas)
+  ctx.strokeStyle = 'rgba(120, 85, 55, 0.30)';
+  for (let i = 0; i < 450; i++) {
     const y = Math.random() * 256;
-    const length = 10 + Math.random() * 40;
+    const length = 12 + Math.random() * 50;
     const x = Math.random() * 256;
+    ctx.lineWidth = 0.4 + Math.random() * 1.0;
     ctx.beginPath();
     ctx.moveTo(x, y);
-    ctx.lineTo((x + length) % 256, y);
+    ctx.lineTo((x + length) % 256, y + (Math.random() - 0.5) * 2);
     ctx.stroke();
   }
-  
-  // Add fine noise
-  for (let i = 0; i < 5000; i++) {
+
+  // Moteado fino del papel
+  for (let i = 0; i < 9000; i++) {
     const x = Math.random() * 256;
     const y = Math.random() * 256;
     const val = Math.random();
-    ctx.fillStyle = val > 0.5 ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
+    ctx.fillStyle = val > 0.5 ? 'rgba(255, 240, 220, 0.06)' : 'rgba(60, 40, 20, 0.06)';
     ctx.fillRect(x, y, 1, 1);
   }
   
@@ -207,36 +210,38 @@ function createCardboardTexture() {
 
 function createFoamTexture(colorHex) {
   const canvas = document.createElement('canvas');
-  canvas.width = 128;
-  canvas.height = 128;
+  canvas.width = 256;
+  canvas.height = 256;
   const ctx = canvas.getContext('2d');
-  
-  // Base color
+
   ctx.fillStyle = colorHex;
-  ctx.fillRect(0, 0, 128, 128);
-  
-  // Cellular noise (EPE Foam cells)
-  for (let i = 0; i < 4000; i++) {
-    const x = Math.random() * 128;
-    const y = Math.random() * 128;
-    const r = 0.5 + Math.random() * 1.5;
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Celdas de espuma EPE: muchas burbujas finas con luz y sombra
+  for (let i = 0; i < 12000; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    const r = 0.4 + Math.random() * 2.0;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255, 255, 255, 0.11)' : 'rgba(0, 0, 0, 0.07)';
     ctx.fill();
   }
-  
-  // Dark cells for shadow contrast
-  for (let i = 0; i < 2000; i++) {
-    const x = Math.random() * 128;
-    const y = Math.random() * 128;
-    const r = 0.5 + Math.random() * 1;
+
+  // Manchas suaves de variación de tono (aspecto orgánico)
+  for (let i = 0; i < 70; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    const r = 8 + Math.random() * 26;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
+    g.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = g;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
     ctx.fill();
   }
-  
+
   return new THREE.CanvasTexture(canvas);
 }
 
@@ -268,6 +273,9 @@ function initHero3D() {
   heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   heroRenderer.shadowMap.enabled = true;
   heroRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  heroRenderer.outputEncoding = THREE.sRGBEncoding;
+  heroRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+  heroRenderer.toneMappingExposure = 1.12;
   
   // Lighting
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -284,6 +292,10 @@ function initHero3D() {
   const fillLight = new THREE.DirectionalLight(0xffb703, 0.3); // Warm golden light
   fillLight.position.set(-5, 3, -4);
   heroScene.add(fillLight);
+
+  // Luz hemisférica: sombreado suave y realista (cielo cálido arriba, suelo oscuro abajo)
+  const hemiLight = new THREE.HemisphereLight(0xfff1d6, 0x140d04, 0.55);
+  heroScene.add(hemiLight);
   
   // Textures
   const cardboardTex = createCardboardTexture();
@@ -336,6 +348,10 @@ function initHero3D() {
     bumpMap: blackFoamTex,
     bumpScale: 0.01
   });
+
+  // Texturas en sRGB + materiales que pueden desvanecerse (para la desintegración en scroll)
+  [cardboardTex, whiteCardboardTex, pinkFoamTex, whiteFoamTex, blackFoamTex].forEach(t => { t.encoding = THREE.sRGBEncoding; });
+  [baseMaterial, lidMaterial, pinkFoamMat, whiteFoamMat, blackFoamMat].forEach(m => { m.transparent = true; });
 
   // Base Box Construction (Kraft cardboard base)
   heroBoxGroup = new THREE.Group();
@@ -543,15 +559,23 @@ function initHero3D() {
     }
   });
   
-  // Exploded animation
-  tl.to(heroPinkMesh.position, { y: -0.32, ease: 'power1.inOut' }, 0)
-    .to(heroWhiteMesh.position, { y: -0.05, ease: 'power1.inOut' }, 0.2)
-    .to(heroBlackMesh.position, { y: 0.22, ease: 'power1.inOut' }, 0.4)
-    .to(heroLidMesh.position, { y: 0.35, ease: 'power2.inOut' }, 0.6)
-    // Scale group slightly as it closes
-    .to(heroBoxGroup.scale, { x: 1.1, y: 1.1, z: 1.1, ease: 'power1.inOut' }, 0)
-    // Rotate group slightly to show depth
-    .to(heroBoxGroup.rotation, { y: Math.PI * 0.25, x: Math.PI * 0.08, ease: 'none' }, 0);
+  // DESINTEGRACIÓN al hacer scroll: las piezas se dispersan, giran y se desvanecen,
+  // revelando la planta (edificio) del fondo — como marca el PDF.
+  tl.to(heroBaseMesh.position,  { y: -4.2, x: -1.4, z: 0.6, ease: 'power1.in' }, 0)
+    .to(heroPinkMesh.position,  { y: -2.6, x: 1.8, z: 1.1, ease: 'power1.in' }, 0)
+    .to(heroWhiteMesh.position, { y: 2.8, x: -2.0, z: -0.7, ease: 'power1.in' }, 0)
+    .to(heroBlackMesh.position, { y: 4.6, x: 1.6, z: -1.3, ease: 'power1.in' }, 0)
+    .to(heroLidMesh.position,   { y: 6.4, x: -0.8, z: 1.5, ease: 'power1.in' }, 0)
+    .to(heroPinkMesh.rotation,  { z: 0.7, ease: 'none' }, 0)
+    .to(heroWhiteMesh.rotation, { z: -0.8, ease: 'none' }, 0)
+    .to(heroBlackMesh.rotation, { z: 0.6, ease: 'none' }, 0)
+    .to(heroBoxGroup.rotation,  { y: Math.PI * 0.4, ease: 'none' }, 0)
+    .to(heroBoxGroup.scale,     { x: 0.8, y: 0.8, z: 0.8, ease: 'power1.in' }, 0)
+    // se desvanecen las 5 piezas (desintegración)
+    .to([pinkFoamMat, whiteFoamMat, blackFoamMat, baseMaterial, lidMaterial], { opacity: 0, ease: 'power2.in' }, 0.3)
+    // la planta emerge (edificio de fondo)
+    .to('.hero-bg-overlay', { opacity: 1, ease: 'power1.out' }, 0)
+    .to('.hero-dark-grad', { opacity: 0.45, ease: 'power1.out' }, 0.1);
   
   // Animation Loop
   function animate() {
