@@ -1790,7 +1790,6 @@ body {
 .dieline-modal-stage:active { cursor: grabbing; }
 .dieline-modal-svg {
   width: min(1100px, 92vw); height: min(70vh, 700px);
-  transform-origin: center center; will-change: transform;
 }
 .dieline-modal-svg svg { width: 100%; height: 100%; }
 @media (max-width: 576px) {

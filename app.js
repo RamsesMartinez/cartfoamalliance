@@ -1568,14 +1568,33 @@ function initDielineModal() {
   const src = document.getElementById('dieline-svg-container');
   if (!modal || !stage || !svgHost || !src) return;
 
-  let scale = 1, tx = 0, ty = 0;
-  const apply = () => { svgHost.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`; };
-  const reset = () => { scale = 1; tx = 0; ty = 0; apply(); };
-  const zoom = (f) => { scale = Math.min(7, Math.max(0.4, scale * f)); apply(); };
+  // Zoom/pan VECTORIAL: manipulamos el viewBox del SVG (no transform CSS),
+  // así el SVG se re-renderiza nítido a cualquier nivel de zoom (nunca se pixela).
+  let svg = null;
+  let base = { x: 0, y: 0, w: 600, h: 350 };
+  let vb = { x: 0, y: 0, w: 600, h: 350 };
+  const applyVB = () => { if (svg) svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`); };
+  const reset = () => { vb = { ...base }; applyVB(); };
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const zoomAt = (factor, fx, fy) => {
+    if (!svg) return;
+    const nw = vb.w / factor, nh = vb.h / factor;
+    if (nw < base.w / 9 || nw > base.w * 3) return; // límites de zoom
+    vb.x += (vb.w - nw) * fx;
+    vb.y += (vb.h - nh) * fy;
+    vb.w = nw; vb.h = nh;
+    applyVB();
+  };
 
   const open = () => {
     svgHost.innerHTML = src.innerHTML; // clona el dieline actual
-    reset();
+    svg = svgHost.querySelector('svg');
+    if (svg) {
+      const p = (svg.getAttribute('viewBox') || '0 0 600 350').split(/\s+/).map(Number);
+      base = { x: p[0] || 0, y: p[1] || 0, w: p[2] || 600, h: p[3] || 350 };
+      vb = { ...base };
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    }
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -1592,17 +1611,27 @@ function initDielineModal() {
   if (viewWrap) viewWrap.addEventListener('click', open);
   const byId = (id) => document.getElementById(id);
   byId('dm-close').addEventListener('click', close);
-  byId('dm-zoom-in').addEventListener('click', () => zoom(1.25));
-  byId('dm-zoom-out').addEventListener('click', () => zoom(0.8));
+  byId('dm-zoom-in').addEventListener('click', () => zoomAt(1.3, 0.5, 0.5));
+  byId('dm-zoom-out').addEventListener('click', () => zoomAt(1 / 1.3, 0.5, 0.5));
   byId('dm-zoom-reset').addEventListener('click', reset);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('active')) close(); });
 
-  stage.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY < 0 ? 1.12 : 0.89); }, { passive: false });
+  stage.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const r = svgHost.getBoundingClientRect();
+    zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, clamp01((e.clientX - r.left) / r.width), clamp01((e.clientY - r.top) / r.height));
+  }, { passive: false });
 
-  // Pan con mouse y touch
-  let dragging = false, sx = 0, sy = 0;
-  const down = (cx, cy) => { dragging = true; sx = cx - tx; sy = cy - ty; };
-  const move = (cx, cy) => { if (!dragging) return; tx = cx - sx; ty = cy - sy; apply(); };
+  // Pan vectorial (mueve el viewBox) — mouse y touch
+  let dragging = false, sx = 0, sy = 0, ox = 0, oy = 0;
+  const down = (cx, cy) => { dragging = true; sx = cx; sy = cy; ox = vb.x; oy = vb.y; };
+  const move = (cx, cy) => {
+    if (!dragging || !svg) return;
+    const r = svgHost.getBoundingClientRect();
+    vb.x = ox - (cx - sx) * (vb.w / r.width);
+    vb.y = oy - (cy - sy) * (vb.h / r.height);
+    applyVB();
+  };
   const upDrag = () => { dragging = false; };
   stage.addEventListener('mousedown', (e) => down(e.clientX, e.clientY));
   window.addEventListener('mousemove', (e) => move(e.clientX, e.clientY));
