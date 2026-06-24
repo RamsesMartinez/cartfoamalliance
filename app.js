@@ -660,7 +660,7 @@ function initBox3D() {
   boxControls = new THREE.OrbitControls(boxCamera, boxRenderer.domElement);
   boxControls.enableDamping = true;
   boxControls.dampingFactor = 0.05;
-  boxControls.enableZoom = true;
+  boxControls.enableZoom = false; // sin zoom de rueda: la rueda hace scroll de la página (evita el scroll doble)
   boxControls.minDistance = 2;
   boxControls.maxDistance = 10;
   boxControls.autoRotate = true;
@@ -1598,11 +1598,13 @@ function initDielineModal() {
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    if (typeof lenis !== 'undefined' && lenis && lenis.stop) lenis.stop(); // congela el scroll suave de la página
   };
   const close = () => {
     modal.classList.remove('active');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    if (typeof lenis !== 'undefined' && lenis && lenis.start) lenis.start();
   };
 
   const expandBtn = document.getElementById('dieline-expand');
