@@ -288,6 +288,9 @@
               <h3>Plano de Trazado de Estructura</h3>
               <p>Desarrollo plano interactivo (2D dieline) con cotas vectoriales dinámicas.</p>
             </div>
+            <button id="dieline-expand" class="dieline-expand-btn" aria-label="Ver en grande">
+              <i class="fa-solid fa-expand"></i><span>Ampliar</span>
+            </button>
           </div>
           
           <div class="dieline-body">
@@ -571,6 +574,22 @@
       </footer>
 
     </main>
+  </div>
+
+  <!-- Modal del dieline: ver en grande con zoom y pan -->
+  <div id="dieline-modal" class="dieline-modal" aria-hidden="true">
+    <div class="dieline-modal-bar">
+      <span class="dm-title">Plano de Trazado — rueda para zoom, arrastra para mover</span>
+      <div class="dm-actions">
+        <button id="dm-zoom-out" aria-label="Alejar"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+        <button id="dm-zoom-reset" aria-label="Restablecer zoom"><i class="fa-solid fa-arrows-to-dot"></i></button>
+        <button id="dm-zoom-in" aria-label="Acercar"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+        <button id="dm-close" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+    <div id="dieline-modal-stage" class="dieline-modal-stage">
+      <div id="dieline-modal-svg" class="dieline-modal-svg"></div>
+    </div>
   </div>
 
   <!-- External CDNs Scripts -->

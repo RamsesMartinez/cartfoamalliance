@@ -1747,3 +1747,53 @@ body {
   background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-orange) 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
+
+/* ===== Dieline: trazos nítidos + botón Ampliar + modal con zoom ===== */
+/* Trazos a ancho constante (legibles en preview y al hacer zoom) */
+#dieline-svg-container svg line, #dieline-svg-container svg path,
+#dieline-modal-svg svg line, #dieline-modal-svg svg path { vector-effect: non-scaling-stroke; }
+
+.dieline-header { gap: 1rem; }
+.dieline-expand-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem; flex-shrink: 0;
+  background: rgba(255,159,28,0.08); border: 1px solid rgba(255,159,28,0.25);
+  color: var(--accent-orange); border-radius: 12px; padding: 0.6rem 1rem;
+  font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.72rem;
+  text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+  transition: var(--transition-smooth);
+}
+.dieline-expand-btn:hover { background: var(--accent-orange); color: #000; }
+.dieline-view-wrapper { cursor: zoom-in; }
+
+.dieline-modal {
+  position: fixed; inset: 0; z-index: 9000; display: none; flex-direction: column;
+  background: rgba(2,4,7,0.93); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.dieline-modal.active { display: flex; }
+.dieline-modal-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 1rem 1.5rem; border-bottom: 1px solid var(--glass-border);
+}
+.dm-title { font-size: 0.8rem; color: var(--text-secondary); }
+.dm-actions { display: flex; gap: 0.5rem; }
+.dm-actions button {
+  width: 40px; height: 40px; border-radius: 10px; cursor: pointer;
+  background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary);
+  display: flex; align-items: center; justify-content: center; transition: var(--transition-fast);
+}
+.dm-actions button:hover { border-color: var(--accent-orange); color: var(--accent-orange); }
+#dm-close:hover { background: var(--accent-orange); color: #000; border-color: var(--accent-orange); }
+.dieline-modal-stage {
+  flex: 1; overflow: hidden; position: relative; cursor: grab;
+  display: flex; align-items: center; justify-content: center; touch-action: none;
+}
+.dieline-modal-stage:active { cursor: grabbing; }
+.dieline-modal-svg {
+  width: min(1100px, 92vw); height: min(70vh, 700px);
+  transform-origin: center center; will-change: transform;
+}
+.dieline-modal-svg svg { width: 100%; height: 100%; }
+@media (max-width: 576px) {
+  .dm-title { display: none; }
+  .dieline-expand-btn span { display: none; }
+}

@@ -1039,7 +1039,7 @@ function generateDieline() {
         <rect x="-10" y="-10" width="${totalWidth + 20}" height="${totalHeight + 20}" fill="none" stroke="rgba(255,255,255,0.01)" stroke-width="1"/>
         
         <!-- FOLD LINES (Dashed Blue #4fa3e3) -->
-        <g stroke="#4fa3e3" stroke-width="2.2" stroke-dasharray="6,6" fill="none">
+        <g stroke="#4fa3e3" stroke-width="2.4" stroke-dasharray="6,6" fill="none" vector-effect="non-scaling-stroke">
           <!-- Horizontal fold lines (only inside the body panels of columns 2-5) -->
           <line x1="${x1}" y1="${y1}" x2="${x5}" y2="${y1}" />
           <line x1="${x1}" y1="${y2}" x2="${x5}" y2="${y2}" />
@@ -1055,7 +1055,7 @@ function generateDieline() {
         </g>
         
         <!-- CUT LINES (Solid Orange #ff9f1c) - Matches layout in WEB2.png -->
-        <g stroke="#ff9f1c" stroke-width="2.2" fill="none">
+        <g stroke="#ff9f1c" stroke-width="2.8" fill="none" vector-effect="non-scaling-stroke">
           <!-- Column 1 Flap Superior (Top Left) -->
           <path d="M ${x0},${y1} L ${x0},${y0} L ${x1},${y0} L ${x1},${y1}" />
           <!-- Column 1 Flap Inferior (Bottom Left) -->
@@ -1095,7 +1095,7 @@ function generateDieline() {
         </g>
         
         <!-- TECHNICAL MEASUREMENTS COTAS -->
-        <g stroke="rgba(255,255,255,0.2)" stroke-width="1">
+        <g stroke="rgba(255,255,255,0.4)" stroke-width="1.4" vector-effect="non-scaling-stroke">
           <!-- Total horizontal width dimension -->
           <line x1="${x0}" y1="${y3 + 30}" x2="${x5}" y2="${y3 + 30}" />
           <line x1="${x0}" y1="${y3 + 26}" x2="${x0}" y2="${y3 + 34}" />
@@ -1559,6 +1559,60 @@ function initDecoPlus() {
 }
 
 // ==========================================
+// 14. MODAL DEL DIELINE (zoom + pan)
+// ==========================================
+function initDielineModal() {
+  const modal = document.getElementById('dieline-modal');
+  const stage = document.getElementById('dieline-modal-stage');
+  const svgHost = document.getElementById('dieline-modal-svg');
+  const src = document.getElementById('dieline-svg-container');
+  if (!modal || !stage || !svgHost || !src) return;
+
+  let scale = 1, tx = 0, ty = 0;
+  const apply = () => { svgHost.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`; };
+  const reset = () => { scale = 1; tx = 0; ty = 0; apply(); };
+  const zoom = (f) => { scale = Math.min(7, Math.max(0.4, scale * f)); apply(); };
+
+  const open = () => {
+    svgHost.innerHTML = src.innerHTML; // clona el dieline actual
+    reset();
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+  const close = () => {
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  const expandBtn = document.getElementById('dieline-expand');
+  const viewWrap = document.querySelector('.dieline-view-wrapper');
+  if (expandBtn) expandBtn.addEventListener('click', open);
+  if (viewWrap) viewWrap.addEventListener('click', open);
+  const byId = (id) => document.getElementById(id);
+  byId('dm-close').addEventListener('click', close);
+  byId('dm-zoom-in').addEventListener('click', () => zoom(1.25));
+  byId('dm-zoom-out').addEventListener('click', () => zoom(0.8));
+  byId('dm-zoom-reset').addEventListener('click', reset);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('active')) close(); });
+
+  stage.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY < 0 ? 1.12 : 0.89); }, { passive: false });
+
+  // Pan con mouse y touch
+  let dragging = false, sx = 0, sy = 0;
+  const down = (cx, cy) => { dragging = true; sx = cx - tx; sy = cy - ty; };
+  const move = (cx, cy) => { if (!dragging) return; tx = cx - sx; ty = cy - sy; apply(); };
+  const upDrag = () => { dragging = false; };
+  stage.addEventListener('mousedown', (e) => down(e.clientX, e.clientY));
+  window.addEventListener('mousemove', (e) => move(e.clientX, e.clientY));
+  window.addEventListener('mouseup', upDrag);
+  stage.addEventListener('touchstart', (e) => { const t = e.touches[0]; down(t.clientX, t.clientY); }, { passive: true });
+  stage.addEventListener('touchmove', (e) => { const t = e.touches[0]; move(t.clientX, t.clientY); }, { passive: true });
+  stage.addEventListener('touchend', upDrag);
+}
+
+// ==========================================
 // INITIALIZATION ON LOAD
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
@@ -1575,6 +1629,7 @@ window.addEventListener('DOMContentLoaded', () => {
   run('ScrollReveals', initScrollReveals);
   run('PdfExtras', initPdfExtras);
   run('DecoPlus', initDecoPlus);
+  run('DielineModal', initDielineModal);
 
   // Failsafe del texto: si GSAP/ScrollTrigger no está, revela todo de inmediato.
   const revealAll = () => document.querySelectorAll('.reveal-wrapper, .reveal-card')
