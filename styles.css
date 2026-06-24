@@ -1723,3 +1723,27 @@ body {
     repeating-linear-gradient(92deg, rgba(0,0,0,0.18) 0 4px, transparent 4px 11px),
     linear-gradient(135deg, #d8ac7e 0%, #b07e4e 55%, #1e140c 100%) !important;
 }
+
+/* Líneas doradas fluyendo en el hero (decorativo del PDF, animado) */
+.hero-gold-lines {
+  position: absolute; top: 0; left: 0; width: 100%; height: 78%;
+  z-index: 0; pointer-events: none;
+}
+.hero-gold-lines path {
+  fill: none; stroke: rgba(255, 180, 90, 0.55); stroke-width: 1.6;
+  filter: drop-shadow(0 0 4px rgba(255, 170, 70, 0.5));
+  stroke-dasharray: 14 16; animation: goldFlow 5s linear infinite;
+}
+.hero-gold-lines path:nth-child(2) { stroke: rgba(255, 200, 120, 0.4); animation-duration: 7s; }
+.hero-gold-lines path:nth-child(3) { stroke: rgba(255, 160, 60, 0.32); animation-duration: 9s; }
+@keyframes goldFlow { to { stroke-dashoffset: -300; } }
+
+/* Título del desarrollo (dieline) ahora inline dentro de "Crea tu caja" */
+.dieline-inline-title {
+  font-family: 'Outfit', sans-serif; font-size: 1.7rem; font-weight: 800;
+  letter-spacing: -0.5px; margin: 3rem 0 1.5rem;
+}
+.dieline-inline-title .highlight {
+  background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-orange) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
