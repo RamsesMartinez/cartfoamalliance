@@ -1538,6 +1538,27 @@ function initPdfExtras() {
 }
 
 // ==========================================
+// 13. DECORACIÓN "+" ANIMADA (estética blueprint del PDF)
+// ==========================================
+function initDecoPlus() {
+  const spots = [['#inicio', 4], ['#calculadora', 5], ['#desarrollo', 4], ['#materiales', 6], ['#industrias', 4], ['#nosotros', 5]];
+  spots.forEach(([sel, n]) => {
+    const host = document.querySelector(sel);
+    if (!host) return;
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement('span');
+      s.className = 'deco-plus';
+      s.textContent = '+';
+      s.style.left = (5 + Math.random() * 88) + '%';
+      s.style.top = (8 + Math.random() * 82) + '%';
+      s.style.fontSize = (10 + Math.random() * 22) + 'px';
+      s.style.animationDelay = (Math.random() * 4).toFixed(2) + 's';
+      host.appendChild(s);
+    }
+  });
+}
+
+// ==========================================
 // INITIALIZATION ON LOAD
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
@@ -1553,6 +1574,7 @@ window.addEventListener('DOMContentLoaded', () => {
   run('Calculator', initCalculator);
   run('ScrollReveals', initScrollReveals);
   run('PdfExtras', initPdfExtras);
+  run('DecoPlus', initDecoPlus);
 
   // Failsafe del texto: si GSAP/ScrollTrigger no está, revela todo de inmediato.
   const revealAll = () => document.querySelectorAll('.reveal-wrapper, .reveal-card')
