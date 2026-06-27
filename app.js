@@ -313,6 +313,15 @@ function initHero3D() {
   const pinkFoamTex = loadTex('assets/tex-foam.jpg', 0.4);
   const whiteFoamTex = loadTex('assets/tex-foam-gray.jpg', 0.4);
   const blackFoamTex = loadTex('assets/tex-foam-gray.jpg', 0.4);
+  // Normal maps (relieve/porosidad real que reacciona a la luz) — datos lineales, NO sRGB
+  const loadNormal = (url, rep) => {
+    const t = texLoader.load(url);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(rep, rep);
+    return t;
+  };
+  const foamNormal = loadNormal('assets/tex-foam-normal.png', 0.4);
+  const cardNormal = loadNormal('assets/tex-cardboard-normal.png', 1);
   
   // Materials
   const baseMaterial = new THREE.MeshStandardMaterial({
@@ -356,6 +365,13 @@ function initHero3D() {
   // Texturas en sRGB + materiales que pueden desvanecerse (para la desintegración en scroll)
   [cardboardTex, whiteCardboardTex, pinkFoamTex, whiteFoamTex, blackFoamTex].forEach(t => { t.encoding = THREE.sRGBEncoding; });
   [baseMaterial, lidMaterial, pinkFoamMat, whiteFoamMat, blackFoamMat].forEach(m => { m.transparent = true; });
+  // Normal maps: porosidad real del foam + relieve del cartón (en vez de bumpMap crudo)
+  [pinkFoamMat, whiteFoamMat, blackFoamMat].forEach(m => {
+    m.bumpMap = null; m.normalMap = foamNormal; m.normalScale = new THREE.Vector2(1.5, 1.5);
+  });
+  [baseMaterial, lidMaterial].forEach(m => {
+    m.bumpMap = null; m.normalMap = cardNormal; m.normalScale = new THREE.Vector2(0.9, 0.9);
+  });
 
   // Base Box Construction (Kraft cardboard base)
   heroBoxGroup = new THREE.Group();
@@ -690,11 +706,13 @@ function initBox3D() {
   cardboardTex.repeat.set(1, 1);
   cardboardTex.encoding = THREE.sRGBEncoding;
   
+  const cardNormalBox = new THREE.TextureLoader().load('assets/tex-cardboard-normal.png');
+  cardNormalBox.wrapS = cardNormalBox.wrapT = THREE.RepeatWrapping;
   cardboardMaterial = new THREE.MeshStandardMaterial({
     map: cardboardTex,
-    roughness: 0.82,
-    bumpMap: cardboardTex,
-    bumpScale: 0.03,
+    roughness: 0.85,
+    normalMap: cardNormalBox,
+    normalScale: new THREE.Vector2(0.9, 0.9),
     side: THREE.DoubleSide
   });
   

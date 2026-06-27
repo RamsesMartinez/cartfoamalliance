@@ -8,7 +8,9 @@ set -e
 OUT="${1:-dist}"
 rm -rf "$OUT"; mkdir -p "$OUT/assets"
 cp index.html styles.css app.js "$OUT/"
-cp assets/logo.png assets/hero-bg-1.jpg assets/hero-bg-2.jpg assets/tex-foam.jpg assets/tex-foam-gray.jpg assets/tex-cardboard.jpg "$OUT/assets/"
+cp assets/logo.png assets/hero-bg-1.jpg assets/hero-bg-2.jpg \
+   assets/tex-foam.jpg assets/tex-foam-gray.jpg assets/tex-cardboard.jpg \
+   assets/tex-foam-normal.png assets/tex-cardboard-normal.png "$OUT/assets/"
 HCSS=$(shasum "$OUT/styles.css" | cut -c1-10)
 HJS=$(shasum "$OUT/app.js" | cut -c1-10)
 # sed -i.bak es portable BSD (macOS) + GNU (ubuntu CI)
