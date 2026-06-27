@@ -1644,12 +1644,23 @@ function initDielineModal() {
 }
 
 // ==========================================
+// 15. FONDO DEL HERO ALEATORIO (uno de 2 banners por carga)
+// ==========================================
+function initHeroBg() {
+  const overlay = document.querySelector('.hero-bg-overlay');
+  if (!overlay) return;
+  const n = Math.random() < 0.5 ? 1 : 2;
+  overlay.style.backgroundImage = `url('assets/hero-bg-${n}.jpg')`;
+}
+
+// ==========================================
 // INITIALIZATION ON LOAD
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
   // ponytail: cada init aislado — si uno truena (WebGL/CDN), los demás siguen y la página no queda en blanco
   const run = (name, fn) => { try { fn(); } catch (e) { console.error('[init] ' + name + ' falló:', e); } };
   run('SmoothScroll', initSmoothScroll);
+  run('HeroBg', initHeroBg);
   run('Navigation', initNavigation);
   run('SpaceBackground', initSpaceBackground);
   run('CustomCursor', initCustomCursor);
