@@ -218,33 +218,39 @@ function makeFoam() {
   return { map, normal: heightToNormal(hc, 2.2) };
 }
 
-// Cartón corrugado kraft procedural: degradado + flautas (ondas) + fibras + normal.
+// Cartón kraft procedural: papel cálido + moteado + fibras multidireccionales (NO vetas de madera) + normal de grano.
 function makeCardboard() {
   const S = 512, c = document.createElement('canvas'); c.width = c.height = S;
   const ctx = c.getContext('2d');
-  const g = ctx.createLinearGradient(0, 0, S, S); g.addColorStop(0, '#c9a079'); g.addColorStop(1, '#a87c52');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+  ctx.fillStyle = '#bd9268'; ctx.fillRect(0, 0, S, S);
   const hc = document.createElement('canvas'); hc.width = hc.height = S;
   const hx = hc.getContext('2d'); hx.fillStyle = '#808080'; hx.fillRect(0, 0, S, S);
-  const flutes = 20;
-  for (let y = 0; y < S; y++) {
-    const w = Math.sin(y / S * Math.PI * 2 * flutes);
-    ctx.fillStyle = w > 0 ? `rgba(255,244,222,${(w * 0.12).toFixed(3)})` : `rgba(60,38,18,${(-w * 0.12).toFixed(3)})`;
-    ctx.fillRect(0, y, S, 1);
-    const h = (128 + w * 45) | 0; hx.fillStyle = `rgb(${h},${h},${h})`; hx.fillRect(0, y, S, 1);
+  // Moteado suave (irregularidad orgánica del papel, sin dirección)
+  for (let i = 0; i < 70; i++) {
+    const x = Math.random() * S, y = Math.random() * S, r = 30 + Math.random() * 90, lt = Math.random() > 0.5;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, lt ? 'rgba(220,185,140,0.10)' : 'rgba(90,60,32,0.10)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
   }
-  ctx.strokeStyle = 'rgba(110,78,50,0.22)';
-  for (let i = 0; i < 1100; i++) {
-    const yy = Math.random() * S, xx = Math.random() * S, len = 10 + Math.random() * 46;
-    ctx.lineWidth = 0.4 + Math.random() * 0.9; ctx.beginPath(); ctx.moveTo(xx, yy); ctx.lineTo(xx + len, yy + (Math.random() - 0.5) * 2.5); ctx.stroke();
+  // Fibras de papel en TODAS direcciones (kraft), no líneas paralelas tipo madera
+  for (let i = 0; i < 2600; i++) {
+    const x = Math.random() * S, y = Math.random() * S, ang = Math.random() * Math.PI, len = 4 + Math.random() * 16;
+    const dark = Math.random() > 0.5, a = (0.05 + Math.random() * 0.10).toFixed(3);
+    ctx.strokeStyle = dark ? `rgba(95,65,38,${a})` : `rgba(225,195,150,${a})`;
+    ctx.lineWidth = 0.5 + Math.random() * 0.8;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len); ctx.stroke();
+    const h = dark ? 108 : 150;
+    hx.strokeStyle = `rgba(${h},${h},${h},0.5)`; hx.lineWidth = ctx.lineWidth;
+    hx.beginPath(); hx.moveTo(x, y); hx.lineTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len); hx.stroke();
   }
-  for (let i = 0; i < 9000; i++) {
+  // Grano fino del papel
+  for (let i = 0; i < 14000; i++) {
     const x = Math.random() * S, y = Math.random() * S, lt = Math.random() > 0.5;
-    ctx.fillStyle = lt ? 'rgba(255,240,220,0.05)' : 'rgba(50,30,15,0.06)'; ctx.fillRect(x, y, 1, 1);
-    hx.fillStyle = lt ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'; hx.fillRect(x, y, 1, 1);
+    ctx.fillStyle = lt ? 'rgba(230,200,158,0.06)' : 'rgba(70,45,22,0.07)'; ctx.fillRect(x, y, 1, 1);
+    hx.fillStyle = lt ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'; hx.fillRect(x, y, 1, 1);
   }
   const map = new THREE.CanvasTexture(c); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.encoding = THREE.sRGBEncoding;
-  return { map, normal: heightToNormal(hc, 1.6) };
+  return { map, normal: heightToNormal(hc, 1.3) };
 }
 
 function createCardboardTexture() {
