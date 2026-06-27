@@ -275,10 +275,10 @@ function initHero3D() {
   heroRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
   heroRenderer.outputEncoding = THREE.sRGBEncoding;
   heroRenderer.toneMapping = THREE.ACESFilmicToneMapping;
-  heroRenderer.toneMappingExposure = 1.12;
+  heroRenderer.toneMappingExposure = 1.35;
   
   // Lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
   heroScene.add(ambientLight);
   
   const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -298,34 +298,36 @@ function initHero3D() {
   heroScene.add(hemiLight);
   
   // Textures
-  const cardboardTex = createCardboardTexture();
-  cardboardTex.wrapS = THREE.RepeatWrapping;
-  cardboardTex.wrapT = THREE.RepeatWrapping;
-  cardboardTex.repeat.set(2, 2);
+  const texLoader = new THREE.TextureLoader();
+  const loadTex = (url, rep) => {
+    const t = texLoader.load(url);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(rep, rep);
+    t.encoding = THREE.sRGBEncoding;
+    return t;
+  };
+  const cardboardTex = loadTex('assets/tex-cardboard.jpg', 1);
   
-  const whiteCardboardTex = createCardboardTexture();
-  whiteCardboardTex.wrapS = THREE.RepeatWrapping;
-  whiteCardboardTex.wrapT = THREE.RepeatWrapping;
-  whiteCardboardTex.repeat.set(2, 2);
+  const whiteCardboardTex = loadTex('assets/tex-cardboard.jpg', 1);
   
-  const pinkFoamTex = createFoamTexture('#ff70a6');
-  const whiteFoamTex = createFoamTexture('#ffffff');
-  const blackFoamTex = createFoamTexture('#1a1b1e');
+  const pinkFoamTex = loadTex('assets/tex-foam.jpg', 0.4);
+  const whiteFoamTex = loadTex('assets/tex-foam-gray.jpg', 0.4);
+  const blackFoamTex = loadTex('assets/tex-foam-gray.jpg', 0.4);
   
   // Materials
   const baseMaterial = new THREE.MeshStandardMaterial({
     map: cardboardTex,
     roughness: 0.8,
     bumpMap: cardboardTex,
-    bumpScale: 0.02
+    bumpScale: 0.04
   });
   
   const lidMaterial = new THREE.MeshStandardMaterial({
     map: whiteCardboardTex,
-    color: 0xfafafa,
-    roughness: 0.75,
+    color: 0xffffff,
+    roughness: 0.8,
     bumpMap: whiteCardboardTex,
-    bumpScale: 0.015
+    bumpScale: 0.03
   });
   
   const pinkFoamMat = new THREE.MeshStandardMaterial({
@@ -337,6 +339,7 @@ function initHero3D() {
   
   const whiteFoamMat = new THREE.MeshStandardMaterial({
     map: whiteFoamTex,
+    color: 0xffffff,
     roughness: 0.9,
     bumpMap: whiteFoamTex,
     bumpScale: 0.01
@@ -344,6 +347,7 @@ function initHero3D() {
   
   const blackFoamMat = new THREE.MeshStandardMaterial({
     map: blackFoamTex,
+    color: 0x3a3a3e,
     roughness: 0.95,
     bumpMap: blackFoamTex,
     bumpScale: 0.01
@@ -667,7 +671,7 @@ function initBox3D() {
   boxControls.autoRotateSpeed = 0.5;
   
   // Lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
   boxScene.add(ambientLight);
   
   const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
@@ -679,17 +683,18 @@ function initBox3D() {
   fillLight.position.set(-5, 2, -4);
   boxScene.add(fillLight);
   
-  // Cardboard Texture
-  const cardboardTex = createCardboardTexture();
+  // Cartón real (textura del PDF)
+  const cardboardTex = new THREE.TextureLoader().load('assets/tex-cardboard.jpg');
   cardboardTex.wrapS = THREE.RepeatWrapping;
   cardboardTex.wrapT = THREE.RepeatWrapping;
-  cardboardTex.repeat.set(1.5, 1.5);
+  cardboardTex.repeat.set(1, 1);
+  cardboardTex.encoding = THREE.sRGBEncoding;
   
   cardboardMaterial = new THREE.MeshStandardMaterial({
     map: cardboardTex,
     roughness: 0.82,
     bumpMap: cardboardTex,
-    bumpScale: 0.015,
+    bumpScale: 0.03,
     side: THREE.DoubleSide
   });
   
