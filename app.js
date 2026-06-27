@@ -1727,21 +1727,62 @@ function initDielineModal() {
 // ==========================================
 function initHeroBg() {
   const overlay = document.querySelector('.hero-bg-overlay');
-  if (overlay) {
-    const n = Math.random() < 0.5 ? 1 : 2;
-    overlay.style.backgroundImage = `url('assets/hero-bg-${n}.jpg')`;
-  }
-  // El banner 3D (capas) muestra el cursor "VER" → ahora al hacer clic lleva a "Crea tu caja"
+  if (!overlay) return;
+  const n = Math.random() < 0.5 ? 1 : 2;
+  overlay.style.backgroundImage = `url('assets/hero-bg-${n}.jpg')`;
+}
+
+// ==========================================
+// 16. VISOR 3D DEL BANNER (zoom de texturas) — reutiliza heroScene + OrbitControls
+// ==========================================
+function initBoxZoom() {
+  const modal = document.getElementById('box-zoom-modal');
+  const canvas = document.getElementById('box-zoom-canvas');
   const heroBox = document.getElementById('hero-canvas-container');
-  if (heroBox) {
-    heroBox.style.cursor = 'pointer';
-    heroBox.addEventListener('click', () => {
-      const target = document.getElementById('calculadora');
-      if (!target) return;
-      if (typeof lenis !== 'undefined' && lenis && lenis.scrollTo) lenis.scrollTo(target);
-      else target.scrollIntoView({ behavior: 'smooth' });
-    });
-  }
+  if (!modal || !canvas || !heroBox) return;
+  let zr, zcam, zctrl, raf;
+
+  const ensure = () => {
+    if (zr) return;
+    zr = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    zr.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    if (THREE.sRGBEncoding) zr.outputEncoding = THREE.sRGBEncoding;
+    if (THREE.ACESFilmicToneMapping) { zr.toneMapping = THREE.ACESFilmicToneMapping; zr.toneMappingExposure = 1.35; }
+    zcam = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    zcam.position.set(5, 4, 7);
+    zctrl = new THREE.OrbitControls(zcam, canvas);
+    zctrl.enableDamping = true; zctrl.dampingFactor = 0.06;
+    zctrl.minDistance = 1.5; zctrl.maxDistance = 18; zctrl.target.set(0, 0, 0);
+  };
+  const resize = () => {
+    const w = canvas.clientWidth || 800, h = canvas.clientHeight || 600;
+    zr.setSize(w, h, false); zcam.aspect = w / h; zcam.updateProjectionMatrix();
+  };
+  const loop = () => { raf = requestAnimationFrame(loop); zctrl.update(); if (typeof heroScene !== 'undefined' && heroScene) zr.render(heroScene, zcam); };
+  const open = () => {
+    // Si no hay 3D (WebGL falló), no abrir
+    if (typeof heroScene === 'undefined' || !heroScene) return;
+    ensure();
+    if (typeof setExplodedState === 'function') setExplodedState(0); // muestra todas las capas estables
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    if (typeof lenis !== 'undefined' && lenis && lenis.stop) lenis.stop();
+    resize(); loop();
+  };
+  const close = () => {
+    cancelAnimationFrame(raf);
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (typeof lenis !== 'undefined' && lenis && lenis.start) lenis.start();
+  };
+
+  heroBox.style.cursor = 'pointer';
+  heroBox.addEventListener('click', open);
+  document.getElementById('bz-close').addEventListener('click', close);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('active')) close(); });
+  window.addEventListener('resize', () => { if (zr && modal.classList.contains('active')) resize(); });
 }
 
 // ==========================================
@@ -1763,6 +1804,7 @@ window.addEventListener('DOMContentLoaded', () => {
   run('PdfExtras', initPdfExtras);
   run('DecoPlus', initDecoPlus);
   run('DielineModal', initDielineModal);
+  run('BoxZoom', initBoxZoom);
 
   // Failsafe del texto: si GSAP/ScrollTrigger no está, revela todo de inmediato.
   const revealAll = () => document.querySelectorAll('.reveal-wrapper, .reveal-card')

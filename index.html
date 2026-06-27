@@ -141,6 +141,14 @@
           <p class="hero-desc reveal-wrapper">
             <span class="reveal-text">Soluciones de empaque que cuidan lo que más valoras.</span>
           </p>
+          <div class="hero-btn-container reveal-wrapper">
+            <div class="reveal-text">
+              <a href="https://wa.me/526571901281?text=Hola%2C%20quiero%20cotizar%20un%20empaque%20con%20Cartfoam" target="_blank" rel="noopener" class="btn-primary">
+                <span>Cotiza Ahora</span>
+                <i class="fa-brands fa-whatsapp"></i>
+              </a>
+            </div>
+          </div>
         </div>
         
         <!-- Exploding 3D Container -->
@@ -581,6 +589,19 @@
     </div>
     <div id="dieline-modal-stage" class="dieline-modal-stage" data-lenis-prevent>
       <div id="dieline-modal-svg" class="dieline-modal-svg"></div>
+    </div>
+  </div>
+
+  <!-- Modal de zoom del banner 3D: inspeccionar texturas (rotar + acercar) -->
+  <div id="box-zoom-modal" class="dieline-modal" aria-hidden="true" data-lenis-prevent>
+    <div class="dieline-modal-bar">
+      <span class="dm-title">Empaque 3D — arrastra para rotar, rueda para acercar y ver las texturas</span>
+      <div class="dm-actions">
+        <button id="bz-close" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+    <div class="dieline-modal-stage" data-lenis-prevent>
+      <canvas id="box-zoom-canvas"></canvas>
     </div>
   </div>
 

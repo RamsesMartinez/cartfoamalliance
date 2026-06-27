@@ -1792,6 +1792,10 @@ body {
   width: min(1100px, 92vw); height: min(70vh, 700px);
 }
 .dieline-modal-svg svg { width: 100%; height: 100%; }
+
+/* Visor 3D del banner (zoom de texturas) */
+#box-zoom-canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+#box-zoom-canvas:active { cursor: grabbing; }
 @media (max-width: 576px) {
   .dm-title { display: none; }
   .dieline-expand-btn span { display: none; }
