@@ -170,6 +170,83 @@ function initScrollReveals() {
 // ==========================================
 // 5. PROCEDURAL TEXTURES GENERATOR
 // ==========================================
+// Sobel: convierte un canvas de altura (grises) en un normal map (relieve que reacciona a la luz).
+function heightToNormal(hc, strength) {
+  const S = hc.width;
+  const d = hc.getContext('2d').getImageData(0, 0, S, S).data;
+  const out = document.createElement('canvas'); out.width = out.height = S;
+  const octx = out.getContext('2d'); const od = octx.createImageData(S, S);
+  const at = (x, y) => d[(((y + S) % S) * S + ((x + S) % S)) * 4] / 255;
+  for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+    const dx = (at(x - 1, y) - at(x + 1, y)) * strength;
+    const dy = (at(x, y - 1) - at(x, y + 1)) * strength;
+    const l = Math.hypot(dx, dy, 1), i = (y * S + x) * 4;
+    od.data[i] = (dx / l * 0.5 + 0.5) * 255;
+    od.data[i + 1] = (dy / l * 0.5 + 0.5) * 255;
+    od.data[i + 2] = (1 / l * 0.5 + 0.5) * 255;
+    od.data[i + 3] = 255;
+  }
+  octx.putImageData(od, 0, 0);
+  const t = new THREE.CanvasTexture(out);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+
+// Foam EPE procedural: celdas/burbujas densas (neutro, se tiñe por material.color) + normal de porosidad.
+function makeFoam() {
+  const S = 512, c = document.createElement('canvas'); c.width = c.height = S;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#d2d2d2'; ctx.fillRect(0, 0, S, S);
+  const hc = document.createElement('canvas'); hc.width = hc.height = S;
+  const hx = hc.getContext('2d'); hx.fillStyle = '#808080'; hx.fillRect(0, 0, S, S);
+  for (let i = 0; i < 90; i++) {
+    const x = Math.random() * S, y = Math.random() * S, r = 24 + Math.random() * 72, lt = Math.random() > 0.5;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, lt ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+  }
+  for (let i = 0; i < 16000; i++) {
+    const x = Math.random() * S, y = Math.random() * S, r = 0.6 + Math.random() * 2.4, v = Math.random();
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7);
+    ctx.fillStyle = v > 0.5 ? `rgba(255,255,255,${(0.12 + v * 0.22).toFixed(3)})` : `rgba(30,30,30,${(0.07 + (0.5 - v) * 0.22).toFixed(3)})`;
+    ctx.fill();
+    hx.beginPath(); hx.arc(x, y, r, 0, 7);
+    const h = (128 + (v > 0.5 ? 95 : -78) * Math.random()) | 0;
+    hx.fillStyle = `rgba(${h},${h},${h},0.55)`; hx.fill();
+  }
+  const map = new THREE.CanvasTexture(c); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.encoding = THREE.sRGBEncoding;
+  return { map, normal: heightToNormal(hc, 2.2) };
+}
+
+// Cartón corrugado kraft procedural: degradado + flautas (ondas) + fibras + normal.
+function makeCardboard() {
+  const S = 512, c = document.createElement('canvas'); c.width = c.height = S;
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, S, S); g.addColorStop(0, '#c9a079'); g.addColorStop(1, '#a87c52');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+  const hc = document.createElement('canvas'); hc.width = hc.height = S;
+  const hx = hc.getContext('2d'); hx.fillStyle = '#808080'; hx.fillRect(0, 0, S, S);
+  const flutes = 20;
+  for (let y = 0; y < S; y++) {
+    const w = Math.sin(y / S * Math.PI * 2 * flutes);
+    ctx.fillStyle = w > 0 ? `rgba(255,244,222,${(w * 0.12).toFixed(3)})` : `rgba(60,38,18,${(-w * 0.12).toFixed(3)})`;
+    ctx.fillRect(0, y, S, 1);
+    const h = (128 + w * 45) | 0; hx.fillStyle = `rgb(${h},${h},${h})`; hx.fillRect(0, y, S, 1);
+  }
+  ctx.strokeStyle = 'rgba(110,78,50,0.22)';
+  for (let i = 0; i < 1100; i++) {
+    const yy = Math.random() * S, xx = Math.random() * S, len = 10 + Math.random() * 46;
+    ctx.lineWidth = 0.4 + Math.random() * 0.9; ctx.beginPath(); ctx.moveTo(xx, yy); ctx.lineTo(xx + len, yy + (Math.random() - 0.5) * 2.5); ctx.stroke();
+  }
+  for (let i = 0; i < 9000; i++) {
+    const x = Math.random() * S, y = Math.random() * S, lt = Math.random() > 0.5;
+    ctx.fillStyle = lt ? 'rgba(255,240,220,0.05)' : 'rgba(50,30,15,0.06)'; ctx.fillRect(x, y, 1, 1);
+    hx.fillStyle = lt ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'; hx.fillRect(x, y, 1, 1);
+  }
+  const map = new THREE.CanvasTexture(c); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.encoding = THREE.sRGBEncoding;
+  return { map, normal: heightToNormal(hc, 1.6) };
+}
+
 function createCardboardTexture() {
   const canvas = document.createElement('canvas');
   canvas.width = 256;
@@ -297,31 +374,14 @@ function initHero3D() {
   const hemiLight = new THREE.HemisphereLight(0xfff1d6, 0x140d04, 0.55);
   heroScene.add(hemiLight);
   
-  // Textures
-  const texLoader = new THREE.TextureLoader();
-  const loadTex = (url, rep) => {
-    const t = texLoader.load(url);
-    t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    t.repeat.set(rep, rep);
-    t.encoding = THREE.sRGBEncoding;
-    return t;
-  };
-  const cardboardTex = loadTex('assets/tex-cardboard.jpg', 1);
-  
-  const whiteCardboardTex = loadTex('assets/tex-cardboard.jpg', 1);
-  
-  const pinkFoamTex = loadTex('assets/tex-foam.jpg', 0.4);
-  const whiteFoamTex = loadTex('assets/tex-foam-gray.jpg', 0.4);
-  const blackFoamTex = loadTex('assets/tex-foam-gray.jpg', 0.4);
-  // Normal maps (relieve/porosidad real que reacciona a la luz) — datos lineales, NO sRGB
-  const loadNormal = (url, rep) => {
-    const t = texLoader.load(url);
-    t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    t.repeat.set(rep, rep);
-    return t;
-  };
-  const foamNormal = loadNormal('assets/tex-foam-normal.png', 0.4);
-  const cardNormal = loadNormal('assets/tex-cardboard-normal.png', 1);
+  // Texturas PROCEDURALES (generadas por código) que imitan el look del PDF — sin usar las fotos
+  const foamTx = makeFoam();        // foam EPE neutro (se tiñe por material.color) + normal de porosidad
+  const cardTx = makeCardboard();   // cartón corrugado kraft + normal de relieve
+  foamTx.map.repeat.set(1.1, 1.1); foamTx.normal.repeat.set(1.1, 1.1);
+  cardTx.map.repeat.set(1.4, 1.4); cardTx.normal.repeat.set(1.4, 1.4);
+  const cardboardTex = cardTx.map, whiteCardboardTex = cardTx.map;
+  const pinkFoamTex = foamTx.map, whiteFoamTex = foamTx.map, blackFoamTex = foamTx.map;
+  const foamNormal = foamTx.normal, cardNormal = cardTx.normal;
   
   // Materials
   const baseMaterial = new THREE.MeshStandardMaterial({
@@ -341,6 +401,7 @@ function initHero3D() {
   
   const pinkFoamMat = new THREE.MeshStandardMaterial({
     map: pinkFoamTex,
+    color: 0xff6fae,
     roughness: 0.9,
     bumpMap: pinkFoamTex,
     bumpScale: 0.01
@@ -367,7 +428,7 @@ function initHero3D() {
   [baseMaterial, lidMaterial, pinkFoamMat, whiteFoamMat, blackFoamMat].forEach(m => { m.transparent = true; });
   // Normal maps: porosidad real del foam + relieve del cartón (en vez de bumpMap crudo)
   [pinkFoamMat, whiteFoamMat, blackFoamMat].forEach(m => {
-    m.bumpMap = null; m.normalMap = foamNormal; m.normalScale = new THREE.Vector2(1.5, 1.5);
+    m.bumpMap = null; m.normalMap = foamNormal; m.normalScale = new THREE.Vector2(2.4, 2.4);
   });
   [baseMaterial, lidMaterial].forEach(m => {
     m.bumpMap = null; m.normalMap = cardNormal; m.normalScale = new THREE.Vector2(0.9, 0.9);
@@ -699,19 +760,14 @@ function initBox3D() {
   fillLight.position.set(-5, 2, -4);
   boxScene.add(fillLight);
   
-  // Cartón real (textura del PDF)
-  const cardboardTex = new THREE.TextureLoader().load('assets/tex-cardboard.jpg');
-  cardboardTex.wrapS = THREE.RepeatWrapping;
-  cardboardTex.wrapT = THREE.RepeatWrapping;
-  cardboardTex.repeat.set(1, 1);
-  cardboardTex.encoding = THREE.sRGBEncoding;
+  // Cartón corrugado procedural (generado por código)
+  const cardTx = makeCardboard();
+  cardTx.map.repeat.set(1.4, 1.4); cardTx.normal.repeat.set(1.4, 1.4);
   
-  const cardNormalBox = new THREE.TextureLoader().load('assets/tex-cardboard-normal.png');
-  cardNormalBox.wrapS = cardNormalBox.wrapT = THREE.RepeatWrapping;
   cardboardMaterial = new THREE.MeshStandardMaterial({
-    map: cardboardTex,
+    map: cardTx.map,
     roughness: 0.85,
-    normalMap: cardNormalBox,
+    normalMap: cardTx.normal,
     normalScale: new THREE.Vector2(0.9, 0.9),
     side: THREE.DoubleSide
   });
@@ -1671,9 +1727,21 @@ function initDielineModal() {
 // ==========================================
 function initHeroBg() {
   const overlay = document.querySelector('.hero-bg-overlay');
-  if (!overlay) return;
-  const n = Math.random() < 0.5 ? 1 : 2;
-  overlay.style.backgroundImage = `url('assets/hero-bg-${n}.jpg')`;
+  if (overlay) {
+    const n = Math.random() < 0.5 ? 1 : 2;
+    overlay.style.backgroundImage = `url('assets/hero-bg-${n}.jpg')`;
+  }
+  // El banner 3D (capas) muestra el cursor "VER" → ahora al hacer clic lleva a "Crea tu caja"
+  const heroBox = document.getElementById('hero-canvas-container');
+  if (heroBox) {
+    heroBox.style.cursor = 'pointer';
+    heroBox.addEventListener('click', () => {
+      const target = document.getElementById('calculadora');
+      if (!target) return;
+      if (typeof lenis !== 'undefined' && lenis && lenis.scrollTo) lenis.scrollTo(target);
+      else target.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
 }
 
 // ==========================================
