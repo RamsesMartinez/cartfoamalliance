@@ -218,39 +218,45 @@ function makeFoam() {
   return { map, normal: heightToNormal(hc, 2.2) };
 }
 
-// Cartón kraft procedural: papel cálido + moteado + fibras multidireccionales (NO vetas de madera) + normal de grano.
+// Cartón CORRUGADO procedural: kraft + flautas como crestas regulares en RELIEVE (normal map),
+// no como franjas de color → la luz marca el corrugado y NO parece madera.
 function makeCardboard() {
   const S = 512, c = document.createElement('canvas'); c.width = c.height = S;
   const ctx = c.getContext('2d');
   ctx.fillStyle = '#bd9268'; ctx.fillRect(0, 0, S, S);
   const hc = document.createElement('canvas'); hc.width = hc.height = S;
-  const hx = hc.getContext('2d'); hx.fillStyle = '#808080'; hx.fillRect(0, 0, S, S);
-  // Moteado suave (irregularidad orgánica del papel, sin dirección)
-  for (let i = 0; i < 70; i++) {
+  const hx = hc.getContext('2d');
+  // Flautas: crestas sinusoidales regulares en la ALTURA (el corrugado vive en el relieve)
+  const flutes = 24;
+  for (let y = 0; y < S; y++) {
+    const w = Math.sin(y / S * Math.PI * 2 * flutes); // -1..1
+    const h = (128 + w * 62) | 0;
+    hx.fillStyle = `rgb(${h},${h},${h})`; hx.fillRect(0, y, S, 1);
+    // sombra MUY tenue solo en el surco (refuerza la flauta, sin franja pintada)
+    if (w < 0) { ctx.fillStyle = `rgba(70,46,24,${((-w) * 0.10).toFixed(3)})`; ctx.fillRect(0, y, S, 1); }
+  }
+  // Moteado suave del papel
+  for (let i = 0; i < 55; i++) {
     const x = Math.random() * S, y = Math.random() * S, r = 30 + Math.random() * 90, lt = Math.random() > 0.5;
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, lt ? 'rgba(220,185,140,0.10)' : 'rgba(90,60,32,0.10)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    g.addColorStop(0, lt ? 'rgba(220,185,140,0.08)' : 'rgba(90,60,32,0.08)'); g.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
   }
-  // Fibras de papel en TODAS direcciones (kraft), no líneas paralelas tipo madera
-  for (let i = 0; i < 2600; i++) {
-    const x = Math.random() * S, y = Math.random() * S, ang = Math.random() * Math.PI, len = 4 + Math.random() * 16;
-    const dark = Math.random() > 0.5, a = (0.05 + Math.random() * 0.10).toFixed(3);
+  // Fibras de papel (grano del kraft, multidireccional)
+  for (let i = 0; i < 1800; i++) {
+    const x = Math.random() * S, y = Math.random() * S, ang = Math.random() * Math.PI, len = 4 + Math.random() * 14;
+    const dark = Math.random() > 0.5, a = (0.04 + Math.random() * 0.08).toFixed(3);
     ctx.strokeStyle = dark ? `rgba(95,65,38,${a})` : `rgba(225,195,150,${a})`;
-    ctx.lineWidth = 0.5 + Math.random() * 0.8;
+    ctx.lineWidth = 0.5 + Math.random() * 0.7;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len); ctx.stroke();
-    const h = dark ? 108 : 150;
-    hx.strokeStyle = `rgba(${h},${h},${h},0.5)`; hx.lineWidth = ctx.lineWidth;
-    hx.beginPath(); hx.moveTo(x, y); hx.lineTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len); hx.stroke();
   }
-  // Grano fino del papel
-  for (let i = 0; i < 14000; i++) {
+  // Grano fino
+  for (let i = 0; i < 9000; i++) {
     const x = Math.random() * S, y = Math.random() * S, lt = Math.random() > 0.5;
-    ctx.fillStyle = lt ? 'rgba(230,200,158,0.06)' : 'rgba(70,45,22,0.07)'; ctx.fillRect(x, y, 1, 1);
-    hx.fillStyle = lt ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'; hx.fillRect(x, y, 1, 1);
+    ctx.fillStyle = lt ? 'rgba(230,200,158,0.05)' : 'rgba(70,45,22,0.06)'; ctx.fillRect(x, y, 1, 1);
   }
   const map = new THREE.CanvasTexture(c); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.encoding = THREE.sRGBEncoding;
-  return { map, normal: heightToNormal(hc, 1.3) };
+  return { map, normal: heightToNormal(hc, 1.7) };
 }
 
 function createCardboardTexture() {
@@ -437,7 +443,7 @@ function initHero3D() {
     m.bumpMap = null; m.normalMap = foamNormal; m.normalScale = new THREE.Vector2(2.4, 2.4);
   });
   [baseMaterial, lidMaterial].forEach(m => {
-    m.bumpMap = null; m.normalMap = cardNormal; m.normalScale = new THREE.Vector2(0.9, 0.9);
+    m.bumpMap = null; m.normalMap = cardNormal; m.normalScale = new THREE.Vector2(1.9, 1.9);
   });
 
   // Base Box Construction (Kraft cardboard base)
@@ -774,7 +780,7 @@ function initBox3D() {
     map: cardTx.map,
     roughness: 0.85,
     normalMap: cardTx.normal,
-    normalScale: new THREE.Vector2(0.9, 0.9),
+    normalScale: new THREE.Vector2(1.9, 1.9),
     side: THREE.DoubleSide
   });
   
