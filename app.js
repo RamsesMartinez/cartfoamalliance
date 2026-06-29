@@ -1085,19 +1085,28 @@ function generateDieline() {
   const container = document.getElementById('dieline-svg-container');
   if (!container) return;
   
-  // Dimensions
-  const w_lat = boxWidth;
-  const w_len = boxLength;
-  const h = boxHeight;
-  const f = Math.round(w_lat * 0.2); // flap height (scaled, e.g. 50 when width = 250)
-  
+  // Real dimensions in inches (shown in the labels)
+  const inL = boxLength, inW = boxWidth, inH = boxHeight;
+  const inF = Math.round(inW * 0.2); // flap depth in inches (20% of width)
+  const ic1 = inW, ic2 = inL, ic3 = inW, ic4 = inL, ic5 = inW;
+  const inTotalWidth = ic1 + ic2 + ic3 + ic4 + ic5;
+
+  // ponytail: U keeps the geometry in a mm-magnitude coordinate space so the font
+  // sizes / label offsets / cota gaps (all authored for that scale) stay proportioned;
+  // labels still show inches. Without it, an inch-magnitude viewBox blows the text up ~25x.
+  const U = 25.4;
+  const w_lat = inW * U;
+  const w_len = inL * U;
+  const h = inH * U;
+  const f = inF * U;
+
   // 5 Columns: Column 1 (Flaps), Column 2 (Posterior), Column 3 (Lateral), Column 4 (Frontal), Column 5 (Lateral)
   const c1 = w_lat;
   const c2 = w_len;
   const c3 = w_lat;
   const c4 = w_len;
   const c5 = w_lat;
-  
+
   const totalWidth = c1 + c2 + c3 + c4 + c5;
   const totalHeight = f + h + f;
   
@@ -1160,29 +1169,29 @@ function generateDieline() {
         <g fill="#8a99ad" font-family="Outfit" font-size="12" font-weight="700" text-anchor="middle">
           <!-- Headers at the top of each column -->
           <text x="${x0 + c1/2}" y="${y1 - 18}">FLAP SUPERIOR</text>
-          <text x="${x0 + c1/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c1} x ${f}"</text>
+          <text x="${x0 + c1/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${ic1} x ${inF}"</text>
           
           <text x="${x1 + c2/2}" y="${y1 - 18}">PANEL POSTERIOR</text>
-          <text x="${x1 + c2/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c2} x ${h}"</text>
+          <text x="${x1 + c2/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${ic2} x ${inH}"</text>
           
           <text x="${x2 + c3/2}" y="${y1 - 18}">PANEL LATERAL</text>
-          <text x="${x2 + c3/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c3} x ${h}"</text>
+          <text x="${x2 + c3/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${ic3} x ${inH}"</text>
           
           <text x="${x3 + c4/2}" y="${y1 - 18}">PANEL FRONTAL</text>
-          <text x="${x3 + c4/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c4} x ${h}"</text>
+          <text x="${x3 + c4/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${ic4} x ${inH}"</text>
           
           <text x="${x4 + c5/2}" y="${y1 - 18}">PANEL LATERAL</text>
-          <text x="${x4 + c5/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c5} x ${h}"</text>
+          <text x="${x4 + c5/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${ic5} x ${inH}"</text>
           
           <!-- Footer label for Column 1 Flap Inferior -->
           <text x="${x0 + c1/2}" y="${y2 + 20}">FLAP INFERIOR</text>
-          <text x="${x0 + c1/2}" y="${y2 + 34}" font-size="9" fill="rgba(255,255,255,0.45)">${c1} x ${f}"</text>
+          <text x="${x0 + c1/2}" y="${y2 + 34}" font-size="9" fill="rgba(255,255,255,0.45)">${ic1} x ${inF}"</text>
           
           <!-- Column widths at bottom -->
-          <text x="${x1 + c2/2}" y="${y2 + 22}" font-size="10">${c2}"</text>
-          <text x="${x2 + c3/2}" y="${y2 + 22}" font-size="10">${c3}"</text>
-          <text x="${x3 + c4/2}" y="${y2 + 22}" font-size="10">${c4}"</text>
-          <text x="${x4 + c5/2}" y="${y2 + 22}" font-size="10">${c5}"</text>
+          <text x="${x1 + c2/2}" y="${y2 + 22}" font-size="10">${ic2}"</text>
+          <text x="${x2 + c3/2}" y="${y2 + 22}" font-size="10">${ic3}"</text>
+          <text x="${x3 + c4/2}" y="${y2 + 22}" font-size="10">${ic4}"</text>
+          <text x="${x4 + c5/2}" y="${y2 + 22}" font-size="10">${ic5}"</text>
         </g>
         
         <!-- TECHNICAL MEASUREMENTS COTAS -->
@@ -1203,9 +1212,9 @@ function generateDieline() {
         </g>
         
         <g fill="#ffffff" font-family="Outfit" font-size="10" font-weight="700">
-          <text x="${x5/2}" y="${y3 + 44}" text-anchor="middle">${totalWidth}" (TOTAL PLANO)</text>
-          <text x="${x5 + 28}" y="${y1 + h/2 + 4}" text-anchor="start">${h}"</text>
-          <text x="${x1 - 24}" y="${y0 + f/2 + 4}" text-anchor="end">${f}"</text>
+          <text x="${x5/2}" y="${y3 + 44}" text-anchor="middle">${inTotalWidth}" (TOTAL PLANO)</text>
+          <text x="${x5 + 28}" y="${y1 + h/2 + 4}" text-anchor="start">${inH}"</text>
+          <text x="${x1 - 24}" y="${y0 + f/2 + 4}" text-anchor="end">${inF}"</text>
         </g>
       </g>
     </svg>
@@ -1215,17 +1224,24 @@ function generateDieline() {
 }
 
 function downloadDielineSVG() {
-  const w_lat = boxWidth;
-  const w_len = boxLength;
-  const h = boxHeight;
-  const f = Math.round(w_lat * 0.2);
-  
+  const inL = boxLength, inW = boxWidth, inH = boxHeight;
+  const inF = Math.round(inW * 0.2);
+  const inTotalWidth = inW * 3 + inL * 2;
+  const inTotalHeight = inF * 2 + inH;
+
+  // ponytail: mm-magnitude coordinate space (see generateDieline); print size set in inches.
+  const U = 25.4;
+  const w_lat = inW * U;
+  const w_len = inL * U;
+  const h = inH * U;
+  const f = inF * U;
+
   const c1 = w_lat;
   const c2 = w_len;
   const c3 = w_lat;
   const c4 = w_len;
   const c5 = w_lat;
-  
+
   const totalWidth = c1 + c2 + c3 + c4 + c5;
   const totalHeight = f + h + f;
   
@@ -1242,10 +1258,10 @@ function downloadDielineSVG() {
   const y3 = f + h + f;
   
   const rawSvg = `<?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" id="Dieline_Cartfoam" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 ${totalWidth} ${totalHeight}" width="${totalWidth}in" height="${totalHeight}in">
+<svg version="1.1" id="Dieline_Cartfoam" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 ${totalWidth} ${totalHeight}" width="${inTotalWidth}in" height="${inTotalHeight}in">
   <g id="Info_Cotas" fill="#888888" font-family="Arial" font-size="10">
     <text x="20" y="30">Plano Técnico: Desarrollo de Caja Corrugada (5 Columnas)</text>
-    <text x="20" y="45">Medidas: ${w_len} L x ${w_lat} W x ${h} H pulg | Flauta: ${fluteType.toUpperCase()}</text>
+    <text x="20" y="45">Medidas: ${inL} L x ${inW} W x ${inH} H pulg | Flauta: ${fluteType.toUpperCase()}</text>
   </g>
   <g id="Lineas_Doblez" stroke="#0000FF" stroke-width="0.5" stroke-dasharray="3,3" fill="none">
     <line x1="${x1}" y1="${y1}" x2="${x5}" y2="${y1}" />
@@ -1267,7 +1283,7 @@ function downloadDielineSVG() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `Desarrollo_Cartfoam_${w_len}x${w_lat}x${h}_5columnas.svg`;
+  a.download = `Desarrollo_Cartfoam_${inL}x${inW}x${inH}_5columnas.svg`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
