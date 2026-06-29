@@ -1099,147 +1099,113 @@ function updateDimensionOverlaySVG(pos) {
 }
 
 // ==========================================
-// 8. DIELINE SVG GENERATOR & DOWNLOAD (5-PANELS AS PER WEB2.png)
+// 8. DIELINE SVG GENERATOR (FEFCO 0201 — Caja Regular / RSC)
 // ==========================================
 function generateDieline() {
   const container = document.getElementById('dieline-svg-container');
   if (!container) return;
-  
-  // Real dimensions in inches (shown in the labels)
+
+  const fmt = v => (Math.round(v * 100) / 100).toString();
+
+  // Dimensiones reales (pulgadas)
   const inL = boxLength, inW = boxWidth, inH = boxHeight;
-  const inF = Math.round(inW * 0.2); // flap depth in inches (20% of width)
-  const ic1 = inW, ic2 = inL, ic3 = inW, ic4 = inL, ic5 = inW;
-  const inTotalWidth = ic1 + ic2 + ic3 + ic4 + ic5;
+  const flapIn = inW / 2;                                         // FEFCO 0201: flap = mitad del ancho
+  const glueIn = Math.max(1, Math.round(inW * 0.15 * 4) / 4);     // pestaña de pegado
+  const totWIn = glueIn + 2 * inL + 2 * inW;
+  const totHIn = inW + inH;                                       // 2*(W/2) + H
   const calibreNote = fluteType === 'doble'
     ? 'CALIBRE: pared doble ≈ 7 mm — mayor resistencia / estiba / exportación'
     : 'CALIBRE: pared sencilla ≈ 4 mm — uso ligero a estándar';
 
-  // ponytail: U keeps the geometry in a mm-magnitude coordinate space so the font
-  // sizes / label offsets / cota gaps (all authored for that scale) stay proportioned;
-  // labels still show inches. Without it, an inch-magnitude viewBox blows the text up ~25x.
+  // ponytail: U mantiene la geometría en magnitud mm para que tamaños de fuente y
+  // separación de cotas queden proporcionados; las etiquetas muestran pulgadas.
   const U = 25.4;
-  const w_lat = inW * U;
-  const w_len = inL * U;
-  const h = inH * U;
-  const f = inF * U;
+  const pL = inL * U, pW = inW * U, fD = flapIn * U, HD = inH * U, gD = glueIn * U;
 
-  // 5 Columns: Column 1 (Flaps), Column 2 (Posterior), Column 3 (Lateral), Column 4 (Frontal), Column 5 (Lateral)
-  const c1 = w_lat;
-  const c2 = w_len;
-  const c3 = w_lat;
-  const c4 = w_len;
-  const c5 = w_lat;
+  const totalWidth = gD + 2 * pL + 2 * pW;
+  const totalHeight = 2 * fD + HD;
 
-  const totalWidth = c1 + c2 + c3 + c4 + c5;
-  const totalHeight = f + h + f;
-  
-  // Fit viewport
-  const viewWidth = 600;
-  const viewHeight = 350;
-  const padding = 25;
-  
-  const scale = Math.min((viewWidth - padding*2) / totalWidth, (viewHeight - padding*2) / (totalHeight || 1));
+  // Coordenadas: pestaña de pega (0..gD), luego 4 paneles L,W,L,W
+  const gx0 = 0, px0 = gD;
+  const px1 = px0 + pL, px2 = px1 + pW, px3 = px2 + pL, px4 = px3 + pW;
+  const yTop = 0, yb1 = fD, yb2 = fD + HD, yBot = 2 * fD + HD;
+  const cy = (yb1 + yb2) / 2;
+
+  const panels = [
+    { x: px0, w: pL, dim: inL, name: 'FRENTE' },
+    { x: px1, w: pW, dim: inW, name: 'LATERAL' },
+    { x: px2, w: pL, dim: inL, name: 'TRASERA' },
+    { x: px3, w: pW, dim: inW, name: 'LATERAL' }
+  ];
+  const innerX = [px1, px2, px3]; // dobleces (en el cuerpo) y ranuras (en los flaps)
+
+  // Ajuste al viewport
+  const viewWidth = 600, viewHeight = 350, padding = 46;
+  const scale = Math.min((viewWidth - padding * 2) / totalWidth, (viewHeight - padding * 2) / (totalHeight || 1));
   const dx = (viewWidth - totalWidth * scale) / 2;
   const dy = (viewHeight - totalHeight * scale) / 2;
-  
-  // Coordinates (x & y)
-  const x0 = 0;
-  const x1 = c1;
-  const x2 = c1 + c2;
-  const x3 = c1 + c2 + c3;
-  const x4 = c1 + c2 + c3 + c4;
-  const x5 = c1 + c2 + c3 + c4 + c5;
-  
-  const y0 = 0;
-  const y1 = f;
-  const y2 = f + h;
-  const y3 = f + h + f;
-  
-  let svgContent = `
+
+  const svgContent = `
     <svg viewBox="0 0 ${viewWidth} ${viewHeight}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <g transform="translate(${dx}, ${dy}) scale(${scale})">
-        <!-- BACKGROUND PANEL GRID -->
-        <rect x="-10" y="-10" width="${totalWidth + 20}" height="${totalHeight + 20}" fill="none" stroke="rgba(255,255,255,0.01)" stroke-width="1"/>
-        
-        <!-- FOLD LINES (Dashed Blue #4fa3e3) -->
-        <g stroke="#4fa3e3" stroke-width="2.4" stroke-dasharray="6,6" fill="none" vector-effect="non-scaling-stroke">
-          <!-- Horizontal fold lines (only inside the body panels of columns 2-5) -->
-          <line x1="${x1}" y1="${y1}" x2="${x5}" y2="${y1}" />
-          <line x1="${x1}" y1="${y2}" x2="${x5}" y2="${y2}" />
-          
-          <!-- Column 1 Flap folds -->
-          <line x1="${x0}" y1="${y1}" x2="${x1}" y2="${y1}" />
-          <line x1="${x0}" y1="${y2}" x2="${x1}" y2="${y2}" />
-          
-          <!-- Vertical panel folds -->
-          <line x1="${x2}" y1="${y1}" x2="${x2}" y2="${y2}" />
-          <line x1="${x3}" y1="${y1}" x2="${x3}" y2="${y2}" />
-          <line x1="${x4}" y1="${y1}" x2="${x4}" y2="${y2}" />
+        <!-- DOBLECES (azul discontinuo): dobleces horizontales del cuerpo + verticales entre paneles -->
+        <g stroke="#4fa3e3" stroke-width="2.2" stroke-dasharray="7,7" fill="none" vector-effect="non-scaling-stroke">
+          <line x1="${px0}" y1="${yb1}" x2="${px4}" y2="${yb1}" />
+          <line x1="${px0}" y1="${yb2}" x2="${px4}" y2="${yb2}" />
+          <line x1="${px0}" y1="${yb1}" x2="${px0}" y2="${yb2}" />
+          ${innerX.map(x => `<line x1="${x}" y1="${yb1}" x2="${x}" y2="${yb2}" />`).join('')}
         </g>
-        
-        <!-- CUT LINES (Solid Orange #ff9f1c) - Matches layout in WEB2.png -->
-        <g stroke="#ff9f1c" stroke-width="2.8" fill="none" vector-effect="non-scaling-stroke">
-          <!-- Column 1 Flap Superior (Top Left) -->
-          <path d="M ${x0},${y1} L ${x0},${y0} L ${x1},${y0} L ${x1},${y1}" />
-          <!-- Column 1 Flap Inferior (Bottom Left) -->
-          <path d="M ${x0},${y2} L ${x0},${y3} L ${x1},${y3} L ${x1},${y2}" />
-          
-          <!-- Main Body Panels (Columns 2-5) outer cut boundary -->
-          <path d="M ${x1},${y1} L ${x1},${y2} L ${x5},${y2} L ${x5},${y1} Z" />
+
+        <!-- CORTES (naranja sólido): silueta exterior, ranuras entre flaps y pestaña de pega -->
+        <g stroke="#ff9f1c" stroke-width="2.6" fill="none" stroke-linejoin="round" vector-effect="non-scaling-stroke">
+          <!-- flaps superiores -->
+          <line x1="${px0}" y1="${yTop}" x2="${px4}" y2="${yTop}" />
+          <line x1="${px0}" y1="${yTop}" x2="${px0}" y2="${yb1}" />
+          <line x1="${px4}" y1="${yTop}" x2="${px4}" y2="${yb1}" />
+          ${innerX.map(x => `<line x1="${x}" y1="${yTop}" x2="${x}" y2="${yb1}" />`).join('')}
+          <!-- flaps inferiores -->
+          <line x1="${px0}" y1="${yBot}" x2="${px4}" y2="${yBot}" />
+          <line x1="${px0}" y1="${yb2}" x2="${px0}" y2="${yBot}" />
+          <line x1="${px4}" y1="${yb2}" x2="${px4}" y2="${yBot}" />
+          ${innerX.map(x => `<line x1="${x}" y1="${yb2}" x2="${x}" y2="${yBot}" />`).join('')}
+          <!-- borde libre derecho del cuerpo -->
+          <line x1="${px4}" y1="${yb1}" x2="${px4}" y2="${yb2}" />
+          <!-- pestaña de pegado (esquinas en chaflán) -->
+          <path d="M ${px0},${yb1} L ${gx0 + gD * 0.32},${yb1} L ${gx0},${yb1 + HD * 0.14} L ${gx0},${yb2 - HD * 0.14} L ${gx0 + gD * 0.32},${yb2} L ${px0},${yb2}" />
         </g>
-        
-        <!-- LABELS - Matching mockup exactly -->
-        <g fill="#8a99ad" font-family="Outfit" font-size="12" font-weight="700" text-anchor="middle">
-          <!-- Headers at the top of each column -->
-          <text x="${x0 + c1/2}" y="${y1 - 18}">FLAP SUPERIOR</text>
-          <text x="${x0 + c1/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${ic1} x ${inF}"</text>
-          
-          <text x="${x1 + c2/2}" y="${y1 - 18}">PANEL POSTERIOR</text>
-          <text x="${x1 + c2/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${ic2} x ${inH}"</text>
-          
-          <text x="${x2 + c3/2}" y="${y1 - 18}">PANEL LATERAL</text>
-          <text x="${x2 + c3/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${ic3} x ${inH}"</text>
-          
-          <text x="${x3 + c4/2}" y="${y1 - 18}">PANEL FRONTAL</text>
-          <text x="${x3 + c4/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${ic4} x ${inH}"</text>
-          
-          <text x="${x4 + c5/2}" y="${y1 - 18}">PANEL LATERAL</text>
-          <text x="${x4 + c5/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${ic5} x ${inH}"</text>
-          
-          <!-- Footer label for Column 1 Flap Inferior -->
-          <text x="${x0 + c1/2}" y="${y2 + 20}">FLAP INFERIOR</text>
-          <text x="${x0 + c1/2}" y="${y2 + 34}" font-size="9" fill="rgba(255,255,255,0.45)">${ic1} x ${inF}"</text>
-          
-          <!-- Column widths at bottom -->
-          <text x="${x1 + c2/2}" y="${y2 + 22}" font-size="10">${ic2}"</text>
-          <text x="${x2 + c3/2}" y="${y2 + 22}" font-size="10">${ic3}"</text>
-          <text x="${x3 + c4/2}" y="${y2 + 22}" font-size="10">${ic4}"</text>
-          <text x="${x4 + c5/2}" y="${y2 + 22}" font-size="10">${ic5}"</text>
+
+        <!-- nombres de panel (centro del cuerpo) -->
+        <g fill="#8a99ad" font-family="Outfit" font-size="11" font-weight="700" text-anchor="middle">
+          ${panels.map(p => `<text x="${p.x + p.w / 2}" y="${cy + 4}">${p.name}</text>`).join('')}
+          <text x="${gx0 + gD / 2}" y="${cy}" font-size="8" transform="rotate(-90 ${gx0 + gD / 2} ${cy})">PEGA</text>
         </g>
-        
-        <!-- TECHNICAL MEASUREMENTS COTAS -->
-        <g stroke="rgba(255,255,255,0.4)" stroke-width="1.4" vector-effect="non-scaling-stroke">
-          <!-- Total horizontal width dimension -->
-          <line x1="${x0}" y1="${y3 + 30}" x2="${x5}" y2="${y3 + 30}" />
-          <line x1="${x0}" y1="${y3 + 26}" x2="${x0}" y2="${y3 + 34}" />
-          <line x1="${x5}" y1="${y3 + 26}" x2="${x5}" y2="${y3 + 34}" />
-          
-          <!-- Height dimensions -->
-          <line x1="${x5 + 20}" y1="${y1}" x2="${x5 + 20}" y2="${y2}" />
-          <line x1="${x5 + 17}" y1="${y1}" x2="${x5 + 23}" y2="${y1}" />
-          <line x1="${x5 + 17}" y1="${y2}" x2="${x5 + 23}" y2="${y2}" />
-          
-          <line x1="${x1 - 15}" y1="${y0}" x2="${x1 - 15}" y2="${y1}" />
-          <line x1="${x1 - 18}" y1="${y0}" x2="${x1 - 12}" y2="${y0}" />
-          <line x1="${x1 - 18}" y1="${y1}" x2="${x1 - 12}" y2="${y1}" />
+
+        <!-- flap depth dentro de los flaps -->
+        <g fill="rgba(255,255,255,0.6)" font-family="Outfit" font-size="8.5" font-weight="600" text-anchor="middle">
+          <text x="${px0 + pL / 2}" y="${yb1 / 2 + 3}">flap ${fmt(flapIn)}"</text>
+          <text x="${px0 + pL / 2}" y="${yb2 + (yBot - yb2) / 2 + 3}">flap ${fmt(flapIn)}"</text>
         </g>
-        
+
+        <!-- cotas de ancho de panel (arriba) -->
+        <g fill="#ffffff" font-family="Outfit" font-size="11" font-weight="700" text-anchor="middle">
+          ${panels.map(p => `<text x="${p.x + p.w / 2}" y="-16">${fmt(p.dim)}"</text>`).join('')}
+        </g>
+
+        <!-- líneas de cota -->
+        <g stroke="rgba(255,255,255,0.4)" stroke-width="1.3" vector-effect="non-scaling-stroke">
+          <line x1="${px0}" y1="${yBot + 26}" x2="${px4}" y2="${yBot + 26}" />
+          <line x1="${px0}" y1="${yBot + 22}" x2="${px0}" y2="${yBot + 30}" />
+          <line x1="${px4}" y1="${yBot + 22}" x2="${px4}" y2="${yBot + 30}" />
+          <line x1="${px4 + 22}" y1="${yb1}" x2="${px4 + 22}" y2="${yb2}" />
+          <line x1="${px4 + 18}" y1="${yb1}" x2="${px4 + 26}" y2="${yb1}" />
+          <line x1="${px4 + 18}" y1="${yb2}" x2="${px4 + 26}" y2="${yb2}" />
+        </g>
         <g fill="#ffffff" font-family="Outfit" font-size="10" font-weight="700">
-          <text x="${x5/2}" y="${y3 + 44}" text-anchor="middle">${inTotalWidth}" (TOTAL PLANO)</text>
-          <text x="${x5 + 28}" y="${y1 + h/2 + 4}" text-anchor="start">${inH}"</text>
-          <text x="${x1 - 24}" y="${y0 + f/2 + 4}" text-anchor="end">${inF}"</text>
+          <text x="${(px0 + px4) / 2}" y="${yBot + 40}" text-anchor="middle">${fmt(totWIn)}" (TOTAL)</text>
+          <text x="${px4 + 30}" y="${cy + 4}" text-anchor="start">${fmt(inH)}"</text>
         </g>
       </g>
+      <text x="14" y="22" fill="#8a99ad" font-family="Outfit" font-size="11" font-weight="700" letter-spacing="0.5">FEFCO 0201 · Caja Regular (RSC)</text>
       <text x="300" y="340" text-anchor="middle" fill="#8a99ad" font-family="Outfit" font-size="11" font-weight="700" letter-spacing="0.5">${calibreNote}</text>
     </svg>
   `;
@@ -1247,71 +1213,36 @@ function generateDieline() {
   container.innerHTML = svgContent;
 }
 
-function downloadDielineSVG() {
-  const inL = boxLength, inW = boxWidth, inH = boxHeight;
-  const inF = Math.round(inW * 0.2);
-  const inTotalWidth = inW * 3 + inL * 2;
-  const inTotalHeight = inF * 2 + inH;
+function downloadDielinePDF() {
+  const svgEl = document.querySelector('#dieline-svg-container svg');
+  if (!svgEl) return;
+  const name = `Desarrollo_Cartfoam_${boxLength}x${boxWidth}x${boxHeight}pulg_${fluteType}`;
+  const xml = new XMLSerializer().serializeToString(svgEl);
+  const src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
 
-  // ponytail: mm-magnitude coordinate space (see generateDieline); print size set in inches.
-  const U = 25.4;
-  const w_lat = inW * U;
-  const w_len = inL * U;
-  const h = inH * U;
-  const f = inF * U;
+  const img = new Image();
+  img.onload = () => {
+    const scale = 4, W = 600 * scale, H = 350 * scale; // viewBox del SVG inline es 600x350
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const cx = cv.getContext('2d');
+    cx.fillStyle = '#0b1020'; cx.fillRect(0, 0, W, H); // fondo oscuro como la tarjeta (el texto del plano es claro)
+    cx.drawImage(img, 0, 0, W, H);
+    const png = cv.toDataURL('image/png');
 
-  const c1 = w_lat;
-  const c2 = w_len;
-  const c3 = w_lat;
-  const c4 = w_len;
-  const c5 = w_lat;
-
-  const totalWidth = c1 + c2 + c3 + c4 + c5;
-  const totalHeight = f + h + f;
-  
-  const x0 = 0;
-  const x1 = c1;
-  const x2 = c1 + c2;
-  const x3 = c1 + c2 + c3;
-  const x4 = c1 + c2 + c3 + c4;
-  const x5 = c1 + c2 + c3 + c4 + c5;
-  
-  const y0 = 0;
-  const y1 = f;
-  const y2 = f + h;
-  const y3 = f + h + f;
-  
-  const rawSvg = `<?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" id="Dieline_Cartfoam" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 ${totalWidth} ${totalHeight}" width="${inTotalWidth}in" height="${inTotalHeight}in">
-  <g id="Info_Cotas" fill="#888888" font-family="Arial" font-size="10">
-    <text x="20" y="30">Plano Técnico: Desarrollo de Caja Corrugada (5 Columnas)</text>
-    <text x="20" y="45">Medidas: ${inL} L x ${inW} W x ${inH} H pulg | Flauta: ${fluteType.toUpperCase()}</text>
-  </g>
-  <g id="Lineas_Doblez" stroke="#0000FF" stroke-width="0.5" stroke-dasharray="3,3" fill="none">
-    <line x1="${x1}" y1="${y1}" x2="${x5}" y2="${y1}" />
-    <line x1="${x1}" y1="${y2}" x2="${x5}" y2="${y2}" />
-    <line x1="${x0}" y1="${y1}" x2="${x1}" y2="${y1}" />
-    <line x1="${x0}" y1="${y2}" x2="${x1}" y2="${y2}" />
-    <line x1="${x2}" y1="${y1}" x2="${x2}" y2="${y2}" />
-    <line x1="${x3}" y1="${y1}" x2="${x3}" y2="${y2}" />
-    <line x1="${x4}" y1="${y1}" x2="${x4}" y2="${y2}" />
-  </g>
-  <g id="Lineas_Corte" stroke="#FF0000" stroke-width="0.5" fill="none">
-    <path d="M ${x0},${y1} L ${x0},${y0} L ${x1},${y0} L ${x1},${y1}" />
-    <path d="M ${x0},${y2} L ${x0},${y3} L ${x1},${y3} L ${x1},${y2}" />
-    <path d="M ${x1},${y1} L ${x1},${y2} L ${x5},${y2} L ${x5},${y1} Z" />
-  </g>
-</svg>`;
-  
-  const blob = new Blob([rawSvg], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `Desarrollo_Cartfoam_${inL}x${inW}x${inH}_5columnas.svg`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+    const jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
+    if (!jsPDFCtor) { // ponytail: fallback a PNG si el CDN de jsPDF no cargó
+      const a = document.createElement('a'); a.href = png; a.download = name + '.png';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      return;
+    }
+    const pdf = new jsPDFCtor({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+    const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+    pdf.setFillColor(11, 16, 32); pdf.rect(0, 0, pw, ph, 'F'); // página oscura a juego
+    const m = 24, r = Math.min((pw - 2 * m) / W, (ph - 2 * m) / H), w = W * r, h = H * r;
+    pdf.addImage(png, 'PNG', (pw - w) / 2, (ph - h) / 2, w, h);
+    pdf.save(name + '.pdf');
+  };
+  img.src = src;
 }
 
 // ==========================================
@@ -1562,7 +1493,7 @@ function initCalculator() {
   });
   
   if (downloadBtn) {
-    downloadBtn.addEventListener('click', downloadDielineSVG);
+    downloadBtn.addEventListener('click', downloadDielinePDF);
   }
   
   if (triggerBtn) {
@@ -1649,23 +1580,6 @@ function initPdfExtras() {
       if (!isOpen) card.classList.add('expanded');
     });
   });
-
-  // Botón Imprimir: abre el desarrollo (dieline) generado en una ventana y lanza impresión
-  const printBtn = document.getElementById('print-dieline-btn');
-  if (printBtn) {
-    printBtn.addEventListener('click', () => {
-      const svg = document.querySelector('#dieline-svg-container svg');
-      if (!svg) { window.print(); return; }
-      const win = window.open('', '_blank');
-      if (!win) return;
-      win.document.write('<!DOCTYPE html><html><head><title>Desarrollo Cartfoam</title></head>' +
-        '<body style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fff">' +
-        svg.outerHTML + '</body></html>');
-      win.document.close();
-      win.focus();
-      setTimeout(() => win.print(), 250);
-    });
-  }
 }
 
 // ==========================================
