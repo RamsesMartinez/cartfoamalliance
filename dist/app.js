@@ -223,40 +223,50 @@ function makeFoam() {
 function makeCardboard() {
   const S = 512, c = document.createElement('canvas'); c.width = c.height = S;
   const ctx = c.getContext('2d');
-  ctx.fillStyle = '#bd9268'; ctx.fillRect(0, 0, S, S);
+  // Base kraft cálido (linerboard) con degradado vertical para dar volumen — tono real del cartón,
+  // más profundo y saturado que el pálido anterior (que leía como madera clara).
+  const g0 = ctx.createLinearGradient(0, 0, 0, S);
+  g0.addColorStop(0, '#b67c40');
+  g0.addColorStop(0.5, '#a56d34');
+  g0.addColorStop(1, '#94602e');
+  ctx.fillStyle = g0; ctx.fillRect(0, 0, S, S);
+
+  // Flautas: SOLO relieve sutil en el normal (baja amplitud, alta frecuencia). En la cara del
+  // cartón la flauta apenas se intuye; sin franjas de color → no parece veta de madera.
   const hc = document.createElement('canvas'); hc.width = hc.height = S;
   const hx = hc.getContext('2d');
-  // Flautas: crestas sinusoidales regulares en la ALTURA (el corrugado vive en el relieve)
-  const flutes = 24;
+  const flutes = 30;
   for (let y = 0; y < S; y++) {
     const w = Math.sin(y / S * Math.PI * 2 * flutes); // -1..1
-    const h = (128 + w * 62) | 0;
+    const h = (128 + w * 26) | 0; // amplitud baja → relieve tenue
     hx.fillStyle = `rgb(${h},${h},${h})`; hx.fillRect(0, y, S, 1);
-    // sombra MUY tenue solo en el surco (refuerza la flauta, sin franja pintada)
-    if (w < 0) { ctx.fillStyle = `rgba(70,46,24,${((-w) * 0.10).toFixed(3)})`; ctx.fillRect(0, y, S, 1); }
   }
-  // Moteado suave del papel
-  for (let i = 0; i < 55; i++) {
-    const x = Math.random() * S, y = Math.random() * S, r = 30 + Math.random() * 90, lt = Math.random() > 0.5;
+
+  // Nubosidad / manchado natural del kraft (irregular, da vida sin direccionalidad)
+  for (let i = 0; i < 70; i++) {
+    const x = Math.random() * S, y = Math.random() * S, r = 40 + Math.random() * 120, lt = Math.random() > 0.5;
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, lt ? 'rgba(220,185,140,0.08)' : 'rgba(90,60,32,0.08)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    g.addColorStop(0, lt ? 'rgba(205,162,108,0.10)' : 'rgba(104,64,30,0.13)'); g.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
   }
-  // Fibras de papel (grano del kraft, multidireccional)
-  for (let i = 0; i < 1800; i++) {
-    const x = Math.random() * S, y = Math.random() * S, ang = Math.random() * Math.PI, len = 4 + Math.random() * 14;
-    const dark = Math.random() > 0.5, a = (0.04 + Math.random() * 0.08).toFixed(3);
-    ctx.strokeStyle = dark ? `rgba(95,65,38,${a})` : `rgba(225,195,150,${a})`;
-    ctx.lineWidth = 0.5 + Math.random() * 0.7;
+
+  // Fibra de papel kraft: densa, multidireccional, baja opacidad → superficie MATE de papel
+  for (let i = 0; i < 3400; i++) {
+    const x = Math.random() * S, y = Math.random() * S, ang = Math.random() * Math.PI, len = 3 + Math.random() * 11;
+    const dark = Math.random() > 0.5, a = (0.03 + Math.random() * 0.06).toFixed(3);
+    ctx.strokeStyle = dark ? `rgba(82,51,24,${a})` : `rgba(212,176,124,${a})`;
+    ctx.lineWidth = 0.4 + Math.random() * 0.6;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len); ctx.stroke();
   }
-  // Grano fino
-  for (let i = 0; i < 9000; i++) {
+
+  // Mota fina (grano del papel)
+  for (let i = 0; i < 12000; i++) {
     const x = Math.random() * S, y = Math.random() * S, lt = Math.random() > 0.5;
-    ctx.fillStyle = lt ? 'rgba(230,200,158,0.05)' : 'rgba(70,45,22,0.06)'; ctx.fillRect(x, y, 1, 1);
+    ctx.fillStyle = lt ? 'rgba(218,182,130,0.05)' : 'rgba(70,44,20,0.06)'; ctx.fillRect(x, y, 1, 1);
   }
+
   const map = new THREE.CanvasTexture(c); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.encoding = THREE.sRGBEncoding;
-  return { map, normal: heightToNormal(hc, 1.7) };
+  return { map, normal: heightToNormal(hc, 1.0) };
 }
 
 function createCardboardTexture() {
@@ -748,6 +758,10 @@ function initBox3D() {
   boxRenderer.setSize(width, height);
   boxRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   boxRenderer.shadowMap.enabled = true;
+  boxRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  // Color correcto (sin esto el kraft sale lavado/pálido): decodifica sRGB + tono filmico
+  if (THREE.sRGBEncoding) boxRenderer.outputEncoding = THREE.sRGBEncoding;
+  if (THREE.ACESFilmicToneMapping) { boxRenderer.toneMapping = THREE.ACESFilmicToneMapping; boxRenderer.toneMappingExposure = 1.05; }
   
   // Controls
   boxControls = new THREE.OrbitControls(boxCamera, boxRenderer.domElement);
@@ -759,16 +773,20 @@ function initBox3D() {
   boxControls.autoRotate = true;
   boxControls.autoRotateSpeed = 0.5;
   
-  // Lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+  // Lighting — menos relleno plano (que lavaba el color) y un key más fuerte que da forma y sombra
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
   boxScene.add(ambientLight);
-  
-  const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+
+  // Ambiente cálido tipo estudio: cielo cálido / suelo oscuro → tinta el kraft sin aplanarlo
+  const hemiLight = new THREE.HemisphereLight(0xfff1d6, 0x140d04, 0.5);
+  boxScene.add(hemiLight);
+
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.15);
   dirLight.position.set(5, 8, 4);
   dirLight.castShadow = true;
   boxScene.add(dirLight);
-  
-  const fillLight = new THREE.DirectionalLight(0xff9f1c, 0.25);
+
+  const fillLight = new THREE.DirectionalLight(0xffb703, 0.35); // relleno cálido dorado
   fillLight.position.set(-5, 2, -4);
   boxScene.add(fillLight);
   
@@ -778,9 +796,10 @@ function initBox3D() {
   
   cardboardMaterial = new THREE.MeshStandardMaterial({
     map: cardTx.map,
-    roughness: 0.85,
+    roughness: 0.94,   // kraft es muy mate (a 0.85 brillaba como madera barnizada)
+    metalness: 0.0,
     normalMap: cardTx.normal,
-    normalScale: new THREE.Vector2(1.9, 1.9),
+    normalScale: new THREE.Vector2(0.85, 0.85), // relieve de flauta sutil, no veta marcada
     side: THREE.DoubleSide
   });
   
@@ -844,7 +863,8 @@ function update3DBoxModel() {
   const h = (boxHeight || 1) * factor;
   
   // Build a semi-open cardboard box FEFCO 0201
-  const thickness = 0.025; // physical cardboard thickness in 3D
+  // Wall thickness scales with flute: doble (double wall) ~2x sencilla (single wall)
+  const thickness = fluteType === 'doble' ? 0.05 : 0.025;
   
   // Group representing the main body
   const bodyGroup = new THREE.Group();
@@ -1090,6 +1110,9 @@ function generateDieline() {
   const inF = Math.round(inW * 0.2); // flap depth in inches (20% of width)
   const ic1 = inW, ic2 = inL, ic3 = inW, ic4 = inL, ic5 = inW;
   const inTotalWidth = ic1 + ic2 + ic3 + ic4 + ic5;
+  const calibreNote = fluteType === 'doble'
+    ? 'CALIBRE: pared doble ≈ 7 mm — mayor resistencia / estiba / exportación'
+    : 'CALIBRE: pared sencilla ≈ 4 mm — uso ligero a estándar';
 
   // ponytail: U keeps the geometry in a mm-magnitude coordinate space so the font
   // sizes / label offsets / cota gaps (all authored for that scale) stay proportioned;
@@ -1217,9 +1240,10 @@ function generateDieline() {
           <text x="${x1 - 24}" y="${y0 + f/2 + 4}" text-anchor="end">${inF}"</text>
         </g>
       </g>
+      <text x="300" y="340" text-anchor="middle" fill="#8a99ad" font-family="Outfit" font-size="11" font-weight="700" letter-spacing="0.5">${calibreNote}</text>
     </svg>
   `;
-  
+
   container.innerHTML = svgContent;
 }
 
