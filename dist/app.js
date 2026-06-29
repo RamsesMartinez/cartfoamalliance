@@ -1175,20 +1175,20 @@ function generateDieline() {
         </g>
 
         <!-- nombres de panel (centro del cuerpo) -->
-        <g fill="#8a99ad" font-family="Outfit" font-size="11" font-weight="700" text-anchor="middle">
-          ${panels.map(p => `<text x="${p.x + p.w / 2}" y="${cy + 4}">${p.name}</text>`).join('')}
-          <text x="${gx0 + gD / 2}" y="${cy}" font-size="8" transform="rotate(-90 ${gx0 + gD / 2} ${cy})">PEGA</text>
+        <g fill="#8a99ad" font-family="Outfit" font-size="42" font-weight="700" text-anchor="middle">
+          ${panels.map(p => `<text x="${p.x + p.w / 2}" y="${cy + 14}">${p.name}</text>`).join('')}
+          <text x="${gx0 + gD / 2}" y="${cy}" font-size="30" transform="rotate(-90 ${gx0 + gD / 2} ${cy})">PEGA</text>
         </g>
 
         <!-- flap depth dentro de los flaps -->
-        <g fill="rgba(255,255,255,0.6)" font-family="Outfit" font-size="8.5" font-weight="600" text-anchor="middle">
-          <text x="${px0 + pL / 2}" y="${yb1 / 2 + 3}">flap ${fmt(flapIn)}"</text>
-          <text x="${px0 + pL / 2}" y="${yb2 + (yBot - yb2) / 2 + 3}">flap ${fmt(flapIn)}"</text>
+        <g fill="rgba(255,255,255,0.6)" font-family="Outfit" font-size="32" font-weight="600" text-anchor="middle">
+          <text x="${px0 + pL / 2}" y="${yb1 / 2 + 11}">flap ${fmt(flapIn)}"</text>
+          <text x="${px0 + pL / 2}" y="${yb2 + (yBot - yb2) / 2 + 11}">flap ${fmt(flapIn)}"</text>
         </g>
 
         <!-- cotas de ancho de panel (arriba) -->
-        <g fill="#ffffff" font-family="Outfit" font-size="11" font-weight="700" text-anchor="middle">
-          ${panels.map(p => `<text x="${p.x + p.w / 2}" y="-16">${fmt(p.dim)}"</text>`).join('')}
+        <g fill="#ffffff" font-family="Outfit" font-size="42" font-weight="700" text-anchor="middle">
+          ${panels.map(p => `<text x="${p.x + p.w / 2}" y="-22">${fmt(p.dim)}"</text>`).join('')}
         </g>
 
         <!-- líneas de cota -->
@@ -1200,9 +1200,9 @@ function generateDieline() {
           <line x1="${px4 + 18}" y1="${yb1}" x2="${px4 + 26}" y2="${yb1}" />
           <line x1="${px4 + 18}" y1="${yb2}" x2="${px4 + 26}" y2="${yb2}" />
         </g>
-        <g fill="#ffffff" font-family="Outfit" font-size="10" font-weight="700">
-          <text x="${(px0 + px4) / 2}" y="${yBot + 40}" text-anchor="middle">${fmt(totWIn)}" (TOTAL)</text>
-          <text x="${px4 + 30}" y="${cy + 4}" text-anchor="start">${fmt(inH)}"</text>
+        <g fill="#ffffff" font-family="Outfit" font-size="38" font-weight="700">
+          <text x="${(px0 + px4) / 2}" y="${yBot + 56}" text-anchor="middle">${fmt(totWIn)}" (TOTAL)</text>
+          <text x="${px4 + 34}" y="${cy + 12}" text-anchor="start">${fmt(inH)}"</text>
         </g>
       </g>
       <text x="14" y="22" fill="#8a99ad" font-family="Outfit" font-size="11" font-weight="700" letter-spacing="0.5">FEFCO 0201 · Caja Regular (RSC)</text>
@@ -1217,7 +1217,12 @@ function downloadDielinePDF() {
   const svgEl = document.querySelector('#dieline-svg-container svg');
   if (!svgEl) return;
   const name = `Desarrollo_Cartfoam_${boxLength}x${boxWidth}x${boxHeight}pulg_${fluteType}`;
-  const xml = new XMLSerializer().serializeToString(svgEl);
+  // PDF en fondo BLANCO (ahorra tinta): recolorea claros→oscuros; conserva naranja (corte) y azul (doblez).
+  const xml = new XMLSerializer().serializeToString(svgEl)
+    .replace(/#ffffff/gi, '#1f2937')
+    .replace(/rgba\(255, ?255, ?255, ?0\.6\)/gi, 'rgba(0,0,0,0.55)')
+    .replace(/rgba\(255, ?255, ?255, ?0\.4\)/gi, 'rgba(0,0,0,0.45)')
+    .replace(/#8a99ad/gi, '#4b5563');
   const src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
 
   const img = new Image();
@@ -1225,7 +1230,7 @@ function downloadDielinePDF() {
     const scale = 4, W = 600 * scale, H = 350 * scale; // viewBox del SVG inline es 600x350
     const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
     const cx = cv.getContext('2d');
-    cx.fillStyle = '#0b1020'; cx.fillRect(0, 0, W, H); // fondo oscuro como la tarjeta (el texto del plano es claro)
+    cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, W, H); // fondo blanco
     cx.drawImage(img, 0, 0, W, H);
     const png = cv.toDataURL('image/png');
 
@@ -1235,9 +1240,8 @@ function downloadDielinePDF() {
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       return;
     }
-    const pdf = new jsPDFCtor({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+    const pdf = new jsPDFCtor({ orientation: 'landscape', unit: 'pt', format: 'a4' }); // página blanca por defecto
     const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
-    pdf.setFillColor(11, 16, 32); pdf.rect(0, 0, pw, ph, 'F'); // página oscura a juego
     const m = 24, r = Math.min((pw - 2 * m) / W, (ph - 2 * m) / H), w = W * r, h = H * r;
     pdf.addImage(png, 'PNG', (pw - w) / 2, (ph - h) / 2, w, h);
     pdf.save(name + '.pdf');
