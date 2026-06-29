@@ -1242,8 +1242,16 @@ function downloadDielinePDF() {
     }
     const pdf = new jsPDFCtor({ orientation: 'landscape', unit: 'pt', format: 'a4' }); // página blanca por defecto
     const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
-    const m = 24, r = Math.min((pw - 2 * m) / W, (ph - 2 * m) / H), w = W * r, h = H * r;
-    pdf.addImage(png, 'PNG', (pw - w) / 2, (ph - h) / 2, w, h);
+    const m = 24, footer = 58; // franja inferior para el aviso legal
+    const r = Math.min((pw - 2 * m) / W, (ph - 2 * m - footer) / H), w = W * r, h = H * r;
+    pdf.addImage(png, 'PNG', (pw - w) / 2, m + ((ph - footer - m) - m - h) / 2, w, h);
+
+    // Aviso legal (texto vectorial al pie)
+    const disclaimer = 'El usuario es responsable de revisar y validar las dimensiones, especificaciones y compatibilidad del diseño antes de su fabricación o uso. CARTFOAM no se hace responsable por errores de diseño, medidas, aplicación, impresión, desempeño o fallas derivadas del uso de este archivo.';
+    pdf.setDrawColor(200); pdf.setLineWidth(0.5);
+    pdf.line(m, ph - footer + 4, pw - m, ph - footer + 4);
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7); pdf.setTextColor(110);
+    pdf.text(pdf.splitTextToSize(disclaimer, pw - 2 * m), m, ph - footer + 18);
     pdf.save(name + '.pdf');
   };
   img.src = src;
