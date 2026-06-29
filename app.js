@@ -721,10 +721,10 @@ function onHeroResize() {
 let boxScene, boxCamera, boxRenderer, boxControls, boxGroup;
 let cardboardMaterial;
 
-// Default Dimensions (Internal in mm)
-let boxLength = 350;
-let boxWidth = 250;
-let boxHeight = 200;
+// Default Dimensions (Internal in inches / pulgadas)
+let boxLength = 14;
+let boxWidth = 10;
+let boxHeight = 8;
 let fluteType = 'sencilla'; // 'sencilla' or 'doble'
 
 function initBox3D() {
@@ -1073,9 +1073,9 @@ function updateDimensionOverlaySVG(pos) {
     overlay.appendChild(textNode);
   }
   
-  drawDimLine(pos.lStart, pos.lEnd, 20, `${boxLength} mm`);
-  drawDimLine(pos.wStart, pos.wEnd, 20, `${boxWidth} mm`);
-  drawDimLine(pos.hStart, pos.hEnd, -25, `${boxHeight} mm`);
+  drawDimLine(pos.lStart, pos.lEnd, 20, `Largo: ${boxLength}"`);
+  drawDimLine(pos.wStart, pos.wEnd, 20, `Ancho: ${boxWidth}"`);
+  drawDimLine(pos.hStart, pos.hEnd, -25, `Alto: ${boxHeight}"`);
 }
 
 // ==========================================
@@ -1160,29 +1160,29 @@ function generateDieline() {
         <g fill="#8a99ad" font-family="Outfit" font-size="12" font-weight="700" text-anchor="middle">
           <!-- Headers at the top of each column -->
           <text x="${x0 + c1/2}" y="${y1 - 18}">FLAP SUPERIOR</text>
-          <text x="${x0 + c1/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c1} x ${f} mm</text>
+          <text x="${x0 + c1/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c1} x ${f}"</text>
           
           <text x="${x1 + c2/2}" y="${y1 - 18}">PANEL POSTERIOR</text>
-          <text x="${x1 + c2/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c2} x ${h} mm</text>
+          <text x="${x1 + c2/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c2} x ${h}"</text>
           
           <text x="${x2 + c3/2}" y="${y1 - 18}">PANEL LATERAL</text>
-          <text x="${x2 + c3/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c3} x ${h} mm</text>
+          <text x="${x2 + c3/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c3} x ${h}"</text>
           
           <text x="${x3 + c4/2}" y="${y1 - 18}">PANEL FRONTAL</text>
-          <text x="${x3 + c4/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c4} x ${h} mm</text>
+          <text x="${x3 + c4/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c4} x ${h}"</text>
           
           <text x="${x4 + c5/2}" y="${y1 - 18}">PANEL LATERAL</text>
-          <text x="${x4 + c5/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c5} x ${h} mm</text>
+          <text x="${x4 + c5/2}" y="${y1 - 4}" font-size="9" fill="rgba(255,255,255,0.45)">${c5} x ${h}"</text>
           
           <!-- Footer label for Column 1 Flap Inferior -->
           <text x="${x0 + c1/2}" y="${y2 + 20}">FLAP INFERIOR</text>
-          <text x="${x0 + c1/2}" y="${y2 + 34}" font-size="9" fill="rgba(255,255,255,0.45)">${c1} x ${f} mm</text>
+          <text x="${x0 + c1/2}" y="${y2 + 34}" font-size="9" fill="rgba(255,255,255,0.45)">${c1} x ${f}"</text>
           
           <!-- Column widths at bottom -->
-          <text x="${x1 + c2/2}" y="${y2 + 22}" font-size="10">${c2} mm</text>
-          <text x="${x2 + c3/2}" y="${y2 + 22}" font-size="10">${c3} mm</text>
-          <text x="${x3 + c4/2}" y="${y2 + 22}" font-size="10">${c4} mm</text>
-          <text x="${x4 + c5/2}" y="${y2 + 22}" font-size="10">${c5} mm</text>
+          <text x="${x1 + c2/2}" y="${y2 + 22}" font-size="10">${c2}"</text>
+          <text x="${x2 + c3/2}" y="${y2 + 22}" font-size="10">${c3}"</text>
+          <text x="${x3 + c4/2}" y="${y2 + 22}" font-size="10">${c4}"</text>
+          <text x="${x4 + c5/2}" y="${y2 + 22}" font-size="10">${c5}"</text>
         </g>
         
         <!-- TECHNICAL MEASUREMENTS COTAS -->
@@ -1203,9 +1203,9 @@ function generateDieline() {
         </g>
         
         <g fill="#ffffff" font-family="Outfit" font-size="10" font-weight="700">
-          <text x="${x5/2}" y="${y3 + 44}" text-anchor="middle">${totalWidth} mm (TOTAL PLANO)</text>
-          <text x="${x5 + 28}" y="${y1 + h/2 + 4}" text-anchor="start">${h} mm</text>
-          <text x="${x1 - 24}" y="${y0 + f/2 + 4}" text-anchor="end">${f} mm</text>
+          <text x="${x5/2}" y="${y3 + 44}" text-anchor="middle">${totalWidth}" (TOTAL PLANO)</text>
+          <text x="${x5 + 28}" y="${y1 + h/2 + 4}" text-anchor="start">${h}"</text>
+          <text x="${x1 - 24}" y="${y0 + f/2 + 4}" text-anchor="end">${f}"</text>
         </g>
       </g>
     </svg>
@@ -1242,10 +1242,10 @@ function downloadDielineSVG() {
   const y3 = f + h + f;
   
   const rawSvg = `<?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" id="Dieline_Cartfoam" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 ${totalWidth} ${totalHeight}" width="${totalWidth}mm" height="${totalHeight}mm">
+<svg version="1.1" id="Dieline_Cartfoam" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 ${totalWidth} ${totalHeight}" width="${totalWidth}in" height="${totalHeight}in">
   <g id="Info_Cotas" fill="#888888" font-family="Arial" font-size="10">
     <text x="20" y="30">Plano Técnico: Desarrollo de Caja Corrugada (5 Columnas)</text>
-    <text x="20" y="45">Medidas: ${w_len} L x ${w_lat} W x ${h} H mm | Flauta: ${fluteType.toUpperCase()}</text>
+    <text x="20" y="45">Medidas: ${w_len} L x ${w_lat} W x ${h} H pulg | Flauta: ${fluteType.toUpperCase()}</text>
   </g>
   <g id="Lineas_Doblez" stroke="#0000FF" stroke-width="0.5" stroke-dasharray="3,3" fill="none">
     <line x1="${x1}" y1="${y1}" x2="${x5}" y2="${y1}" />
@@ -1491,25 +1491,25 @@ function initCalculator() {
   if (!lengthInput || !widthInput || !heightInput) return;
   
   lengthInput.addEventListener('input', (e) => {
-    let val = parseInt(e.target.value) || 0;
-    if (val > 1000) val = 1000;
-    if (val < 100) val = 100;
+    let val = parseFloat(e.target.value) || 0;
+    if (val > 60) val = 60;
+    if (val < 1) val = 1;
     boxLength = val;
     onCalculatorUpdate();
   });
   
   widthInput.addEventListener('input', (e) => {
-    let val = parseInt(e.target.value) || 0;
-    if (val > 800) val = 800;
-    if (val < 100) val = 100;
+    let val = parseFloat(e.target.value) || 0;
+    if (val > 48) val = 48;
+    if (val < 1) val = 1;
     boxWidth = val;
     onCalculatorUpdate();
   });
   
   heightInput.addEventListener('input', (e) => {
-    let val = parseInt(e.target.value) || 0;
-    if (val > 600) val = 600;
-    if (val < 80) val = 80;
+    let val = parseFloat(e.target.value) || 0;
+    if (val > 40) val = 40;
+    if (val < 1) val = 1;
     boxHeight = val;
     onCalculatorUpdate();
   });

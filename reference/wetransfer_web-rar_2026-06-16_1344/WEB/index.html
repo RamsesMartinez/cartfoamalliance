@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cartfoam Alliance Site - Soluciones de empaque a la medida. Calculadora inteligente e interactiva de desarrollo de cajas corrugadas y espumas de protección.">
+  <meta name="keywords" content="Cartfoam, empaques, cartón corrugado, foam EPE, caja de cartón, dieline, diseño de empaques, Cd Juárez">
+  <meta name="author" content="Cartfoam Alliance Site">
+  <title>Cartfoam Alliance Site - Packaging Supply</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="logo perfil.png">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Custom Awwwards Cursor Follower -->
+  <div id="custom-cursor">
+    <div class="cursor-dot"></div>
+    <div class="cursor-text"></div>
+  </div>
+
+  <!-- Background Space Canvas -->
+  <canvas id="space-canvas"></canvas>
+
+  <!-- Mobile Toggle Menu Button -->
+  <button class="menu-toggle" aria-label="Toggle Navigation">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="#inicio" class="logo-container">
+        <img src="logo perfil.png" alt="Cartfoam Logo" class="logo-img">
+        <h1 class="logo-title">Cartfoam</h1>
+        <span class="logo-subtitle">Alliance Site</span>
+        <span class="logo-tagline">Packaging Supply</span>
+      </a>
+      
+      <nav class="nav-menu">
+        <ul>
+          <li class="nav-item active">
+            <a href="#inicio" class="nav-link">
+              <i class="fa-solid fa-house"></i>
+              <span>Inicio</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#calculadora" class="nav-link">
+              <i class="fa-solid fa-calculator"></i>
+              <span>Calculadora IA</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#desarrollo" class="nav-link">
+              <i class="fa-solid fa-ruler-combined"></i>
+              <span>Desarrollo</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#materiales" class="nav-link">
+              <i class="fa-solid fa-layer-group"></i>
+              <span>Materiales</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#industrias" class="nav-link">
+              <i class="fa-solid fa-industry"></i>
+              <span>Industrias</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#nosotros" class="nav-link">
+              <i class="fa-solid fa-users"></i>
+              <span>Nosotros</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#contacto" class="nav-link">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Contacto</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <p>&copy; 2024 Cartfoam<br>Alliance Site</p>
+      </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="main-content">
+      
+      <!-- HERO SECTION -->
+      <section id="inicio">
+        <div class="hero-bg-overlay"></div>
+        <div class="hero-dark-grad"></div>
+        
+        <div class="hero-content">
+          <span class="hero-subtitle-top reveal-wrapper"><span class="reveal-text">Packaging Supply</span></span>
+          <h2 class="hero-title reveal-wrapper">
+            <span class="reveal-text">LO QUE PROTEGE,</span>
+            <span class="reveal-text highlight">TAMBIÉN IMPORTA.</span>
+          </h2>
+          <p class="hero-desc reveal-wrapper">
+            <span class="reveal-text">Soluciones de empaque que cuidan lo que más valoras.</span>
+          </p>
+          <div class="hero-btn-container reveal-wrapper">
+            <div class="reveal-text">
+              <a href="#calculadora" class="btn-primary">
+                <span>Cotiza Ahora</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Exploding 3D Container -->
+        <div id="hero-canvas-container">
+          <canvas id="hero-canvas"></canvas>
+          
+          <!-- ISO Floating Badge - Matches WEB2.png design -->
+          <div class="hero-cert-badge glass-card">
+            <div class="cert-badge-icon">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="cert-badge-info">
+              <h4>Calidad certificada</h4>
+              <p>ISO 9001:2015</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Hero Badges at bottom -->
+        <div class="hero-badges-wrapper">
+          <div class="hero-badge-card">
+            <div class="hero-badge-icon">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="hero-badge-info">
+              <h4>Protección</h4>
+              <p>Que da confianza</p>
+            </div>
+          </div>
+          <div class="hero-badge-card">
+            <div class="hero-badge-icon">
+              <i class="fa-solid fa-pen-ruler"></i>
+            </div>
+            <div class="hero-badge-info">
+              <h4>Diseño</h4>
+              <p>Que innova</p>
+            </div>
+          </div>
+          <div class="hero-badge-card">
+            <div class="hero-badge-icon">
+              <i class="fa-solid fa-certificate"></i>
+            </div>
+            <div class="hero-badge-info">
+              <h4>Calidad Certificada</h4>
+              <p>ISO 9001:2015</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CALCULADORA IA & UNIFIED CARD SECTION -->
+      <section id="calculadora" class="section">
+        <h2 class="section-title reveal-wrapper">
+          <span class="reveal-text">Calculadora IA</span>
+          <span class="reveal-text highlight">de Empaques</span>
+        </h2>
+        <p class="section-subtitle reveal-wrapper">
+          <span class="reveal-text">Ingresa las dimensiones internas, el tipo de material y nuestra inteligencia artificial desarrollará tu empaque automáticamente.</span>
+        </p>
+        
+        <!-- Unified Calculator Container - Matches WEB2.png exactly -->
+        <div class="calc-container-card glass-card reveal-card">
+          <!-- Left Visualizer Side -->
+          <div class="visualizer-side">
+            <div class="visualizer-header">
+              <div class="visualizer-title">
+                <i class="fa-solid fa-cube" style="color: var(--accent-orange);"></i>
+                <h3>Visualizador 3D</h3>
+              </div>
+              <div class="visualizer-controls-tip">
+                <i class="fa-solid fa-arrows-spin"></i>
+                <span>Arrastra para rotar</span>
+              </div>
+            </div>
+            
+            <div id="box-canvas-container">
+              <canvas id="box-canvas"></canvas>
+            </div>
+          </div>
+          
+          <!-- Right Configurator Side -->
+          <div class="inputs-side">
+            <div class="calc-form">
+              <!-- Material Selection -->
+              <div class="form-group-material">
+                <span class="form-label">Tipo de Material</span>
+                <div class="radio-group">
+                  <label class="radio-label">
+                    <input type="radio" name="flute" value="sencilla" checked>
+                    <span>Flauta Sencilla</span>
+                  </label>
+                  <label class="radio-label">
+                    <input type="radio" name="flute" value="doble">
+                    <span>Flauta Doble</span>
+                  </label>
+                </div>
+              </div>
+              
+              <!-- Dimensions Inputs -->
+              <div class="form-group-dimensions">
+                <span class="form-label">Dimensiones Internas (mm)</span>
+                <div class="inputs-row">
+                  <div class="input-number-wrapper">
+                    <label for="length">Largo</label>
+                    <input type="number" id="length" class="input-box" value="350" min="100" max="1000">
+                  </div>
+                  <div class="input-number-wrapper">
+                    <label for="width">Ancho</label>
+                    <input type="number" id="width" class="input-box" value="250" min="100" max="800">
+                  </div>
+                  <div class="input-number-wrapper">
+                    <label for="height">Alto</label>
+                    <input type="number" id="height" class="input-box" value="200" min="80" max="600">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="calc-btn-container">
+              <button id="trigger-desarrollo-btn" class="btn-primary" style="width: 100%; justify-content: center;">
+                <span>Generar Desarrollo</span>
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DESARROLLO ESTRUCTURAL SECTION -->
+      <section id="desarrollo" class="section">
+        <h2 class="section-title reveal-wrapper">
+          <span class="reveal-text">Desarrollo</span>
+          <span class="reveal-text highlight">Automático</span>
+        </h2>
+        <p class="section-subtitle reveal-wrapper">
+          <span class="reveal-text">Obtén al instante el desarrollo de tu caja con las medidas exactas de cada panel y flap, lista para producción.</span>
+        </p>
+        
+        <div class="dieline-card glass-card reveal-card">
+          <div class="dieline-header">
+            <div class="dieline-title-block">
+              <h3>Plano de Trazado de Estructura</h3>
+              <p>Desarrollo plano interactivo (2D dieline) con cotas vectoriales dinámicas.</p>
+            </div>
+          </div>
+          
+          <div class="dieline-body">
+            <!-- 2D SVG Viewport -->
+            <div class="dieline-view-wrapper">
+              <div id="dieline-svg-container"></div>
+            </div>
+            
+            <!-- Legend and download buttons -->
+            <div class="dieline-legend-panel">
+              <h4>Acotación de Líneas</h4>
+              <ul class="legend-list">
+                <li class="legend-item">
+                  <div class="legend-line corte"></div>
+                  <span class="legend-label">Línea de Corte</span>
+                </li>
+                <li class="legend-item">
+                  <div class="legend-line doblez"></div>
+                  <span class="legend-label">Línea de Doblez</span>
+                </li>
+                <li class="legend-item">
+                  <div class="legend-line dimension"></div>
+                  <span class="legend-label">Cota de Medida</span>
+                </li>
+              </ul>
+              
+              <button id="download-dieline" class="btn-download-svg">
+                <i class="fa-solid fa-file-arrow-down"></i>
+                <span>Descargar Desarrollo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MATERIALES SECTION -->
+      <section id="materiales" class="section">
+        <h2 class="section-title reveal-wrapper">
+          <span class="reveal-text">Materiales que marcan</span>
+          <span class="reveal-text highlight">la diferencia</span>
+        </h2>
+        <p class="section-subtitle reveal-wrapper">
+          <span class="reveal-text">Seleccionamos y combinamos materias primas avanzadas para garantizar empaques técnicos con máxima absorción al impacto.</span>
+        </p>
+        
+        <div class="materiales-grid">
+          
+          <!-- Foam EPE Card - Matches mockup layout and bullets -->
+          <div class="material-card glass-card reveal-card">
+            <div class="material-visual" style="background: linear-gradient(135deg, rgba(255, 112, 166, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);">
+              <div class="material-visual-content">
+                <span class="material-visual-tag">Foam EPE</span>
+              </div>
+            </div>
+            
+            <h3>FOAM <span>EPE</span></h3>
+            
+            <ul class="material-features">
+              <li>Ligero y resistente</li>
+              <li>Absorción de impacto</li>
+              <li>Reutilizable</li>
+              <li>Resistente a la humedad</li>
+            </ul>
+            
+            <div class="material-apps">
+              <h4>Aplicaciones</h4>
+              <p>Electrónica, automotriz, médica, aeroespacial y más.</p>
+            </div>
+            
+            <div class="material-link-wrapper">
+              <a href="#contacto" class="material-link">
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+          
+          <!-- Cardboard Card - Matches mockup layout and bullets -->
+          <div class="material-card glass-card reveal-card">
+            <div class="material-visual" style="background: linear-gradient(135deg, rgba(212, 162, 118, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);">
+              <div class="material-visual-content">
+                <span class="material-visual-tag">Cartón Corrugado</span>
+              </div>
+            </div>
+            
+            <h3>CARTÓN <span>CORRUGADO</span></h3>
+            
+            <ul class="material-features">
+              <li>Reciclable y sostenible</li>
+              <li>Alta resistencia</li>
+              <li>Personalizable</li>
+              <li>Impresión disponible</li>
+            </ul>
+            
+            <div class="material-apps">
+              <h4>Aplicaciones</h4>
+              <p>Retail, e-commerce, exportación y más.</p>
+            </div>
+            
+            <div class="material-link-wrapper">
+              <a href="#contacto" class="material-link">
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+
+      <!-- INDUSTRIAS TRUST BAR SECTION -->
+      <section id="industrias" class="section">
+        <h2 class="section-title reveal-wrapper">
+          <span class="reveal-text">Sectores e</span>
+          <span class="reveal-text highlight">Industrias</span>
+        </h2>
+        <p class="section-subtitle reveal-wrapper">
+          <span class="reveal-text">Nuestras soluciones híbridas de empaque están diseñadas bajo los estándares más exigentes de la manufactura global.</span>
+        </p>
+        
+        <div class="nosotros-pills-grid" style="margin-top: 1rem;">
+          <div class="nosotros-pill glass-card reveal-card">
+            <div class="nosotros-pill-icon"><i class="fa-solid fa-laptop-code"></i></div>
+            <h4>Electrónica</h4>
+            <p>Empaques disipativos ESD y protección fina para componentes sensibles.</p>
+          </div>
+          <div class="nosotros-pill glass-card reveal-card">
+            <div class="nosotros-pill-icon"><i class="fa-solid fa-car"></i></div>
+            <h4>Automotriz</h4>
+            <p>Contenedores retornables dunnage con celdas de espuma a la medida.</p>
+          </div>
+          <div class="nosotros-pill glass-card reveal-card">
+            <div class="nosotros-pill-icon"><i class="fa-solid fa-house-medical"></i></div>
+            <h4>Médica</h4>
+            <p>Materiales estériles de grado médico y alta absorción de vibraciones.</p>
+          </div>
+          <div class="nosotros-pill glass-card reveal-card">
+            <div class="nosotros-pill-icon"><i class="fa-solid fa-plane"></i></div>
+            <h4>Aeroespacial</h4>
+            <p>Aislamiento térmico, acústico y protección física crítica ultraligera.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- NOSOTROS SECTION - Matches WEB2.png layout and text -->
+      <section id="nosotros" class="section">
+        <h2 class="section-title reveal-wrapper">
+          <span class="reveal-text">Sobre</span>
+          <span class="reveal-text highlight">Nosotros</span>
+        </h2>
+        <p class="section-subtitle reveal-wrapper">
+          <span class="reveal-text">Líderes en ingeniería de empaque e inserciones protectoras de foam.</span>
+        </p>
+        
+        <div class="nosotros-content">
+          <div class="nosotros-text reveal-card">
+            <p>
+              Cartfoam Alliance Site desarrolla soluciones de empaque en foam y cartón para la industria manufacturera. Diseñamos sistemas de protección, empaques personalizados y proyectos innovadores enfocados en calidad, mejora continua y satisfacción del cliente.
+            </p>
+            <p>
+              Desde 2023, trabajamos para optimizar procesos, proteger productos y ofrecer un servicio confiable respaldado por estándares de excelencia.
+            </p>
+          </div>
+          
+          <div class="nosotros-pills-grid">
+            <div class="nosotros-pill glass-card reveal-card">
+              <div class="nosotros-pill-icon">
+                <i class="fa-solid fa-award"></i>
+              </div>
+              <h4>Enfoque en calidad</h4>
+              <p>Compromiso con la excelencia en cada empaque.</p>
+            </div>
+            <div class="nosotros-pill glass-card reveal-card">
+              <div class="nosotros-pill-icon">
+                <i class="fa-solid fa-pencil"></i>
+              </div>
+              <h4>Innovación constante</h4>
+              <p>Desarrollo tecnológico continuo de productos.</p>
+            </div>
+            <div class="nosotros-pill glass-card reveal-card">
+              <div class="nosotros-pill-icon">
+                <i class="fa-solid fa-sliders"></i>
+              </div>
+              <h4>Soluciones a la medida</h4>
+              <p>Ingeniería adaptada a tus requerimientos.</p>
+            </div>
+            <div class="nosotros-pill glass-card reveal-card">
+              <div class="nosotros-pill-icon">
+                <i class="fa-solid fa-handshake"></i>
+              </div>
+              <h4>Compromiso total</h4>
+              <p>Seguridad y confianza en cada envío.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACTO & FOOTER SECTION -->
+      <footer id="contacto" class="contacto-section">
+        <div class="contacto-wrapper">
+          
+          <!-- Top Row -->
+          <div class="footer-top-row">
+            <a href="#inicio" class="footer-logo">
+              <img src="logo perfil.png" alt="Cartfoam Logo">
+              <div class="footer-logo-text">
+                <span class="footer-logo-title">Cartfoam</span>
+                <span class="footer-logo-subtitle">Alliance Site</span>
+              </div>
+            </a>
+            
+            <div>
+              <h4 class="footer-industrias-title">Industrias que confían en nosotros</h4>
+              <ul class="footer-industrias-list">
+                <li><i class="fa-solid fa-laptop-code"></i> Electrónica</li>
+                <li><i class="fa-solid fa-car"></i> Automotriz</li>
+                <li><i class="fa-solid fa-house-medical"></i> Médica</li>
+                <li><i class="fa-solid fa-plane"></i> Aeroespacial</li>
+                <li><i class="fa-solid fa-chair"></i> Mobiliario</li>
+                <li><i class="fa-solid fa-basket-shopping"></i> Retail</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Mid Grid Info -->
+          <div class="footer-mid-grid">
+            <!-- Mail card -->
+            <div class="contact-card glass-card reveal-card">
+              <div class="contact-card-icon">
+                <i class="fa-solid fa-envelope"></i>
+              </div>
+              <div class="contact-card-info">
+                <h4>Correo de Ingeniería</h4>
+                <a href="mailto:ingenieria@cartfoam.com.mx">ingenieria@cartfoam.com.mx</a>
+                <div class="social-links">
+                  <a href="#" class="social-btn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                  <a href="#" class="social-btn" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                  <a href="https://wa.me/526571901281" class="social-btn" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Phone card -->
+            <div class="contact-card glass-card reveal-card">
+              <div class="contact-card-icon">
+                <i class="fa-solid fa-phone"></i>
+              </div>
+              <div class="contact-card-info">
+                <h4>Teléfono Directo</h4>
+                <a href="tel:+526571901281">657 190 1281</a>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);">Lunes a Viernes: 8:00 AM - 5:00 PM</p>
+              </div>
+            </div>
+            
+            <!-- Address card -->
+            <div class="contact-card glass-card reveal-card">
+              <div class="contact-card-icon">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div class="contact-card-info">
+                <h4>Planta y Oficinas</h4>
+                <p>Cd. Juárez, Chihuahua, México</p>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);">Servicio a Juárez, El Paso, y región binacional.</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Bottom Row copyright -->
+          <div class="footer-bottom-row">
+            <p>&copy; 2026 Cartfoam Alliance Site. Todos los derechos reservados. Diseñado bajo estándares de ingeniería y diseño digital.</p>
+            <div class="footer-bottom-links">
+              <a href="#">Aviso de Privacidad</a>
+              <a href="#">Términos de Servicio</a>
+            </div>
+          </div>
+          
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- External CDNs Scripts -->
+  <!-- 1. Lenis Smooth Scroll (Awwwards feel) -->
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+  <!-- 2. Three.js Core -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- 3. Three.js OrbitControls -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- 4. GSAP Core -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- 5. GSAP ScrollTrigger Plugin -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  
+  <!-- Custom App Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
