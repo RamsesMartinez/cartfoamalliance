@@ -1322,93 +1322,101 @@ class Star {
   }
 }
 
+// Galaxia espiral de fondo (antes "agujero negro"): disco inclinado con brazos en espiral,
+// giro lento y rígido (no se enrolla), núcleo luminoso suave. Conserva eventRadius/lensRadius
+// para el sutil efecto gravitacional sobre las estrellas.
 class BlackHole {
   constructor(xPercent, yPixelOffset, size = 30) {
     this.xPercent = xPercent;
     this.yPixelOffset = yPixelOffset;
     this.size = size;
-    this.eventRadius = size;
-    this.lensRadius = size * 5.0;
-    this.rotationAngle = 0;
+    this.coreRadius = size * 0.7;
+    this.eventRadius = size;            // usado por Star.update (límite interno)
+    this.galaxyRadius = size * 5.0;
+    this.lensRadius = this.galaxyRadius; // usado por Star.update (alcance)
+    this.rotationAngle = Math.random() * Math.PI * 2;
+    // giro MUY lento, dirección y ritmo ligeramente distintos por galaxia
+    this.spin = (0.00035 + Math.random() * 0.00035) * (Math.random() > 0.5 ? 1 : -1);
+    this.tilt = Math.random() * Math.PI;     // orientación del disco
+    this.squash = 0.42 + Math.random() * 0.22; // inclinación (disco visto en ángulo)
     this.x = 0;
     this.y = 0;
-    
+
+    const arms = 2 + (Math.random() > 0.5 ? 1 : 0); // 2 o 3 brazos
+    const turns = 0.55 + Math.random() * 0.35;       // cuánto se enrollan los brazos
     this.particles = [];
-    for (let i = 0; i < 80; i++) {
-      const radius = this.eventRadius * 1.2 + Math.random() * (this.lensRadius - this.eventRadius * 1.2);
+    const N = 150;
+    for (let i = 0; i < N; i++) {
+      // densidad mayor hacia el centro (sqrt) y un poco de campo difuso fuera de los brazos
+      const t = Math.sqrt(Math.random());
+      const r = this.coreRadius + t * (this.galaxyRadius - this.coreRadius);
+      const inArm = Math.random() < 0.8;
+      const arm = Math.floor(Math.random() * arms);
+      const spread = inArm ? (0.18 + 0.25 * (r / this.galaxyRadius)) : 1.6; // brazos finos, campo disperso
+      const baseAngle = arm * (Math.PI * 2 / arms)
+        + (r / this.galaxyRadius) * turns * Math.PI * 2
+        + (Math.random() - 0.5) * spread;
+      const frac = (r - this.coreRadius) / (this.galaxyRadius - this.coreRadius);
       this.particles.push({
-        radius: radius,
-        angle: Math.random() * Math.PI * 2,
-        speed: 0.015 + (1 / radius) * 1.5,
-        size: 0.8 + Math.random() * 1.8,
-        color: this.getAccretionColor()
+        r,
+        baseAngle,
+        size: 0.5 + Math.random() * (inArm ? 1.6 : 1.0),
+        color: this.starColor(frac),
+        bright: inArm ? (0.55 + Math.random() * 0.4) : (0.18 + Math.random() * 0.22)
       });
     }
   }
-  
-  getAccretionColor() {
-    const colors = [
-      'rgba(255, 159, 28, ',
-      'rgba(231, 111, 81, ',
-      'rgba(255, 112, 166, ',
-      'rgba(114, 9, 183, '
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
+
+  // color por radio: cálido cerca del núcleo → rosa → azul/púrpura en los brazos exteriores
+  starColor(frac) {
+    if (frac < 0.25) return 'rgba(255, 226, 178, ';
+    if (frac < 0.55) return 'rgba(255, 150, 188, ';
+    if (frac < 0.8)  return 'rgba(186, 142, 234, ';
+    return 'rgba(150, 170, 240, ';
   }
-  
+
   update(canvas, scrollY, scrollVelocity) {
     this.x = canvas.width * this.xPercent;
     this.y = this.yPixelOffset - scrollY;
-    
+
     let speedFactor = 1.0;
     if (Math.abs(scrollVelocity) > 10) {
-      speedFactor = 1.0 + Math.min(Math.abs(scrollVelocity) * 0.005, 4.0);
+      speedFactor = 1.0 + Math.min(Math.abs(scrollVelocity) * 0.0025, 2.0); // reacción al scroll, suave
     }
-    
-    this.particles.forEach(p => {
-      p.angle += p.speed * speedFactor;
-      p.radius -= 0.03 * speedFactor;
-      if (p.radius <= this.eventRadius) {
-        p.radius = this.eventRadius * 1.2 + Math.random() * (this.lensRadius - this.eventRadius * 1.2);
-        p.angle = Math.random() * Math.PI * 2;
-      }
-    });
+    this.rotationAngle += this.spin * speedFactor; // rotación rígida → los brazos no se enrollan
   }
-  
+
   draw(ctx) {
-    const gradientGlow = ctx.createRadialGradient(this.x, this.y, this.eventRadius, this.x, this.y, this.lensRadius);
-    gradientGlow.addColorStop(0, 'rgba(255, 159, 28, 0.06)');
-    gradientGlow.addColorStop(0.3, 'rgba(255, 112, 166, 0.03)');
-    gradientGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = gradientGlow;
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.tilt);
+    ctx.scale(1, this.squash); // disco inclinado (elíptico)
+
+    // halo / núcleo luminoso suave (sin núcleo negro)
+    const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, this.galaxyRadius);
+    glow.addColorStop(0, 'rgba(255, 233, 196, 0.22)');
+    glow.addColorStop(0.12, 'rgba(255, 184, 138, 0.12)');
+    glow.addColorStop(0.4, 'rgba(186, 142, 234, 0.05)');
+    glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = glow;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.lensRadius, 0, Math.PI * 2);
+    ctx.arc(0, 0, this.galaxyRadius, 0, Math.PI * 2);
     ctx.fill();
-    
+
+    const a = this.rotationAngle;
     this.particles.forEach(p => {
-      const px = this.x + Math.cos(p.angle) * p.radius;
-      const py = this.y + Math.sin(p.angle) * p.radius;
-      
-      let alpha = 0.8;
-      if (p.radius < this.eventRadius * 1.5) {
-        alpha = (p.radius - this.eventRadius) / (this.eventRadius * 0.5);
-      }
-      
-      ctx.fillStyle = p.color + alpha + ')';
+      const ang = p.baseAngle + a;
+      const px = Math.cos(ang) * p.r;
+      const py = Math.sin(ang) * p.r;
+      // se desvanece hacia el borde
+      const edge = 1 - Math.pow(p.r / this.galaxyRadius, 2) * 0.55;
+      ctx.fillStyle = p.color + (p.bright * edge).toFixed(3) + ')';
       ctx.beginPath();
       ctx.arc(px, py, p.size, 0, Math.PI * 2);
       ctx.fill();
     });
-    
-    ctx.fillStyle = '#000000';
-    ctx.shadowColor = '#ff9f1c';
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.eventRadius, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
+
+    ctx.restore();
   }
 }
 
@@ -1551,13 +1559,22 @@ function initNavigation() {
         e.preventDefault();
         topnav.classList.remove('active');
         menuToggle.querySelector('i').className = 'fa-solid fa-bars';
-        
+
         const targetId = link.getAttribute('href');
         const targetElem = document.querySelector(targetId);
         if (targetElem && lenis) {
           lenis.scrollTo(targetElem);
         }
       });
+    });
+  }
+
+  // Ubicación del header → scroll suave a la sección del mapa
+  const locLink = document.querySelector('.topbar-loc');
+  if (locLink) {
+    locLink.addEventListener('click', (e) => {
+      const target = document.getElementById('ubicacion');
+      if (target && lenis) { e.preventDefault(); lenis.scrollTo(target, { offset: -90 }); }
     });
   }
   
