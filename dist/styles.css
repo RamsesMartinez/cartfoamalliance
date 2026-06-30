@@ -1018,12 +1018,9 @@ body {
 }
 
 /* Add mockup-matching textures dynamically in CSS or render procedurally */
-.material-card:nth-child(1) .material-visual-content {
-  background-image: linear-gradient(135deg, rgba(255, 112, 166, 0.2) 0%, rgba(7, 13, 25, 0.9) 100%);
-}
-
+.material-card:nth-child(1) .material-visual-content,
 .material-card:nth-child(2) .material-visual-content {
-  background-image: linear-gradient(135deg, rgba(212, 162, 118, 0.25) 0%, rgba(7, 13, 25, 0.9) 100%);
+  background-image: none; /* la foto va en .material-visual; este overlay tapaba la imagen */
 }
 
 .material-visual-tag {
@@ -1714,15 +1711,20 @@ body {
 .hero-badge-card:nth-child(3) { animation: floatY 6s ease-in-out infinite 2s; }
 @keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
 
-/* Visual de materiales: foam rosa + cartón corrugado (aprox. CSS, más fiel al PDF que el placeholder) */
+/* Visual de materiales: fotos reales (foam EPE rosa / cartón corrugado), con leve overlay para legibilidad del tag.
+   Orden de capas (arriba→abajo): overlay oscuro · foto · gradiente fallback (se ve mientras la imagen carga). */
 .material-card:nth-child(1) .material-visual {
   background:
+    linear-gradient(rgba(7,13,25,0.18), rgba(7,13,25,0.42)),
+    url('assets/epe-foam.webp') center/cover no-repeat,
     radial-gradient(circle at 32% 30%, rgba(255,158,196,0.55), transparent 46%),
     radial-gradient(circle at 70% 68%, rgba(231,111,158,0.5), transparent 52%),
     linear-gradient(135deg, #ff9ec4 0%, #e76f9e 55%, #2a1a22 100%) !important;
 }
 .material-card:nth-child(2) .material-visual {
   background:
+    linear-gradient(rgba(7,13,25,0.18), rgba(7,13,25,0.42)),
+    url('assets/carton.webp') center/cover no-repeat,
     repeating-linear-gradient(92deg, rgba(0,0,0,0.18) 0 4px, transparent 4px 11px),
     linear-gradient(135deg, #d8ac7e 0%, #b07e4e 55%, #1e140c 100%) !important;
 }
