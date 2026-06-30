@@ -1244,7 +1244,8 @@ function downloadDielinePDF() {
     const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
     const m = 24, footer = 58; // franja inferior para el aviso legal
     const r = Math.min((pw - 2 * m) / W, (ph - 2 * m - footer) / H), w = W * r, h = H * r;
-    pdf.addImage(png, 'PNG', (pw - w) / 2, m + ((ph - footer - m) - m - h) / 2, w, h);
+    // compresión 'SLOW' (FlateDecode): sin ella jsPDF guarda el PNG crudo (~13 MB) y los visores lo dan por corrupto
+    pdf.addImage(png, 'PNG', (pw - w) / 2, m + ((ph - footer - m) - m - h) / 2, w, h, undefined, 'SLOW');
 
     // Aviso legal (texto vectorial al pie)
     const disclaimer = 'El usuario es responsable de revisar y validar las dimensiones, especificaciones y compatibilidad del diseño antes de su fabricación o uso. CARTFOAM no se hace responsable por errores de diseño, medidas, aplicación, impresión, desempeño o fallas derivadas del uso de este archivo.';
