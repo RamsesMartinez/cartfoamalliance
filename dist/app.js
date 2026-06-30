@@ -1264,61 +1264,124 @@ function downloadDielinePDF() {
 class Star {
   constructor(canvas) {
     this.canvas = canvas;
-    this.reset();
-    this.alpha = 0.2 + Math.random() * 0.8;
-    this.twinkleSpeed = 0.005 + Math.random() * 0.012;
+    this.depth = Math.random();                  // 0 lejana ... 1 cercana
+    this.size = 0.5 + this.depth * 1.7;          // cercanas más grandes
+    this.parallax = 0.04 + this.depth * 0.30;    // cercanas se desplazan más con el scroll
+    const ang = Math.random() * Math.PI * 2;
+    const sp = (0.003 + Math.random() * 0.006) * (0.4 + this.depth); // deriva sideral muy lenta
+    this.driftX = Math.cos(ang) * sp;
+    this.driftY = Math.sin(ang) * sp;
+    this.bx = Math.random() * canvas.width;
+    this.by = Math.random() * canvas.height;
+    this.baseAlpha = 0.25 + this.depth * 0.65;
+    this.alpha = Math.random() * this.baseAlpha;
+    this.twinkleSpeed = 0.004 + Math.random() * 0.012;
     this.twinkleDirection = Math.random() > 0.5 ? 1 : -1;
-    this.baseX = this.x;
-    this.baseY = this.y;
+    this.x = this.bx;
+    this.y = this.by;
   }
-  
+
   reset() {
-    this.x = Math.random() * this.canvas.width;
-    this.y = Math.random() * this.canvas.height;
-    this.baseX = this.x;
-    this.baseY = this.y;
-    this.size = 0.6 + Math.random() * 1.4;
+    this.bx = Math.random() * this.canvas.width;
+    this.by = Math.random() * this.canvas.height;
   }
-  
-  update(scrollVelocity, blackHoles) {
+
+  update(scrollVelocity, blackHoles, scrollY, dt) {
     let factor = 1.0;
     if (Math.abs(scrollVelocity) > 10) {
       factor = 1.0 + Math.min(Math.abs(scrollVelocity) * 0.003, 3.0);
     }
-    
+
+    // titileo
     this.alpha += this.twinkleSpeed * this.twinkleDirection * factor;
-    if (this.alpha > 1) {
-      this.alpha = 1;
-      this.twinkleDirection = -1;
-    } else if (this.alpha < 0.1) {
-      this.alpha = 0.1;
-      this.twinkleDirection = 1;
-    }
-    
-    let pullX = 0;
-    let pullY = 0;
-    
+    if (this.alpha > this.baseAlpha) { this.alpha = this.baseAlpha; this.twinkleDirection = -1; }
+    else if (this.alpha < this.baseAlpha * 0.12) { this.alpha = this.baseAlpha * 0.12; this.twinkleDirection = 1; }
+
+    // deriva sideral constante
+    this.bx += this.driftX * dt;
+    this.by += this.driftY * dt;
+
+    const W = this.canvas.width, H = this.canvas.height;
+    // parallax por capa + wrap para que el campo siempre llene el viewport
+    const x = ((this.bx % W) + W) % W;
+    const y = (((this.by - scrollY * this.parallax) % H) + H) % H;
+
+    // curvatura sutil cerca de las galaxias
+    let pullX = 0, pullY = 0;
     blackHoles.forEach(bh => {
-      const dx = bh.x - this.baseX;
-      const dy = bh.y - this.baseY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      
+      const dx = bh.x - x, dy = bh.y - y, dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < bh.lensRadius && dist > bh.eventRadius) {
         const force = (bh.lensRadius - dist) / bh.lensRadius * 15;
         pullX -= (dx / dist) * force;
         pullY -= (dy / dist) * force;
       }
     });
-    
-    this.x = this.baseX + pullX;
-    this.y = this.baseY + pullY;
+    this.x = x + pullX;
+    this.y = y + pullY;
   }
-  
+
   draw(ctx) {
-    ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+    ctx.fillStyle = `rgba(255, 250, 240, ${this.alpha})`;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
+  }
+}
+
+// Estrella fugaz: traza diagonal que aparece esporádicamente y se apaga
+class ShootingStar {
+  constructor(W, H) {
+    this.x = Math.random() * W * 0.85;
+    this.y = Math.random() * H * 0.35;
+    const ang = Math.PI * (0.13 + Math.random() * 0.22); // hacia abajo-derecha
+    const sp = 9 + Math.random() * 8;
+    this.vx = Math.cos(ang) * sp;
+    this.vy = Math.sin(ang) * sp;
+    this.len = 90 + Math.random() * 130;
+    this.life = 1;
+  }
+  update() { this.x += this.vx; this.y += this.vy; this.life -= 0.011; }
+  draw(ctx) {
+    const m = this.len / Math.hypot(this.vx, this.vy);
+    const tx = this.x - this.vx * m, ty = this.y - this.vy * m;
+    const g = ctx.createLinearGradient(this.x, this.y, tx, ty);
+    g.addColorStop(0, `rgba(255, 240, 210, ${0.9 * this.life})`);
+    g.addColorStop(1, 'rgba(255, 240, 210, 0)');
+    ctx.strokeStyle = g; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(tx, ty); ctx.stroke();
+  }
+  dead(W, H) { return this.life <= 0 || this.x > W + 60 || this.y > H + 60; }
+}
+
+// Constelaciones: une estrellas cercanas (capa próxima) y refuerza cerca del cursor
+function drawConstellations(ctx, stars, mouse) {
+  const maxD = 118, maxD2 = maxD * maxD;
+  ctx.lineWidth = 0.6;
+  for (let i = 0; i < stars.length; i++) {
+    const a = stars[i];
+    if (a.depth < 0.5) continue; // solo capa cercana → líneas sutiles, no saturadas
+    for (let j = i + 1; j < stars.length; j++) {
+      const b = stars[j];
+      if (b.depth < 0.5) continue;
+      const dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy;
+      if (d2 < maxD2) {
+        const al = (1 - Math.sqrt(d2) / maxD) * 0.10;
+        ctx.strokeStyle = `rgba(180, 200, 255, ${al})`;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      }
+    }
+  }
+  if (mouse.x > -1) { // cerca del cursor: hilos más brillantes hacia el puntero
+    const mr = 165, mr2 = mr * mr;
+    ctx.lineWidth = 0.7;
+    for (const s of stars) {
+      const dx = s.x - mouse.x, dy = s.y - mouse.y, d2 = dx * dx + dy * dy;
+      if (d2 < mr2) {
+        const al = (1 - Math.sqrt(d2) / mr) * 0.32;
+        ctx.strokeStyle = `rgba(255, 200, 150, ${al})`;
+        ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
+      }
+    }
   }
 }
 
@@ -1421,16 +1484,20 @@ class BlackHole {
   }
 }
 
-let spaceCanvas, spaceCtx, stars = [], blackHoles = [];
+let spaceCanvas, spaceCtx, stars = [], blackHoles = [], shootingStars = [];
+let spaceMouse = { x: -9999, y: -9999 };
+let spaceLastT = 0;
 
 function initSpaceBackground() {
   spaceCanvas = document.getElementById('space-canvas');
   if (!spaceCanvas) return;
-  
+
   spaceCtx = spaceCanvas.getContext('2d');
-  
+
   onSpaceResize();
   window.addEventListener('resize', onSpaceResize);
+  window.addEventListener('mousemove', (e) => { spaceMouse.x = e.clientX; spaceMouse.y = e.clientY; });
+  window.addEventListener('mouseleave', () => { spaceMouse.x = -9999; spaceMouse.y = -9999; });
   
   const starCount = 120;
   for (let i = 0; i < starCount; i++) {
@@ -1443,26 +1510,36 @@ function initSpaceBackground() {
   blackHoles.push(new BlackHole(0.92, 4000, 92, 0.32));
   blackHoles.push(new BlackHole(0.30, 5600, 58, 0.52));
   
-  function loop() {
+  function loop(t) {
     requestAnimationFrame(loop);
-    
+
+    const dt = spaceLastT ? Math.min((t - spaceLastT) / 16.67, 3) : 1; // delta en "frames" (cap para pestañas inactivas)
+    spaceLastT = t;
     const scrollY = window.scrollY;
     const scrollVelocity = getScrollVelocity();
-    
-    spaceCtx.clearRect(0, 0, spaceCanvas.width, spaceCanvas.height);
-    
+    const W = spaceCanvas.width, H = spaceCanvas.height;
+
+    spaceCtx.clearRect(0, 0, W, H);
+
     blackHoles.forEach(bh => {
       bh.update(spaceCanvas, scrollY, scrollVelocity);
       bh.draw(spaceCtx);
     });
-    
-    stars.forEach(star => {
-      star.update(scrollVelocity, blackHoles);
-      star.draw(spaceCtx);
-    });
+
+    stars.forEach(star => star.update(scrollVelocity, blackHoles, scrollY, dt));
+    drawConstellations(spaceCtx, stars, spaceMouse);
+    stars.forEach(star => star.draw(spaceCtx));
+
+    // estrellas fugaces esporádicas
+    if (Math.random() < 0.006 && shootingStars.length < 2) shootingStars.push(new ShootingStar(W, H));
+    for (let i = shootingStars.length - 1; i >= 0; i--) {
+      shootingStars[i].update();
+      shootingStars[i].draw(spaceCtx);
+      if (shootingStars[i].dead(W, H)) shootingStars.splice(i, 1);
+    }
   }
-  
-  loop();
+
+  loop(0);
 }
 
 function onSpaceResize() {
