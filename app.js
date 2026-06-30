@@ -1105,37 +1105,49 @@ function generateDieline() {
   const container = document.getElementById('dieline-svg-container');
   if (!container) return;
 
-  const fmt = v => (Math.round(v * 100) / 100).toString();
+  // pulgadas → fracción en dieciseisavos (estándar de cajas): 20.125 → "20 1/8"
+  const toFrac = (v) => {
+    const whole = Math.floor(v + 1e-6);
+    let num = Math.round((v - whole) * 16), den = 16;
+    if (num === 0) return `${whole}`;
+    if (num === 16) return `${whole + 1}`;
+    while (num % 2 === 0 && den % 2 === 0) { num /= 2; den /= 2; }
+    return whole ? `${whole} ${num}/${den}` : `${num}/${den}`;
+  };
 
-  // Dimensiones reales (pulgadas)
+  // Dimensiones INTERNAS (pulgadas) que captura el usuario
   const inL = boxLength, inW = boxWidth, inH = boxHeight;
-  const flapIn = inW / 2;                                         // FEFCO 0201: flap = mitad del ancho
-  const glueIn = Math.max(1, Math.round(inW * 0.15 * 4) / 4);     // pestaña de pegado
-  const totWIn = glueIn + 2 * inL + 2 * inW;
-  const totHIn = inW + inH;                                       // 2*(W/2) + H
+  // Calibre de pared del cartón: el desarrollo (medidas externas) suma este grosor a las internas.
+  const t = fluteType === 'doble' ? 0.125 : 0.0625; // doble ≈ 1/8" · sencilla ≈ 1/16"
+  // FEFCO 0201: progresión de envoltura → cada panel crece según el grosor (2t, 3t, 3t, 2t)
+  const aw = [inL + 2 * t, inW + 3 * t, inL + 3 * t, inW + 2 * t];
+  const flapIn = inW / 2 + 2 * t;   // flap = mitad del ancho + calibre
+  const bodyIn = inH + 2 * t;       // alto del cuerpo + calibre
+  const glueIn = Math.max(1, Math.round(inW * 0.09 * 8) / 8); // pestaña de pegado
+  const inTotalWidth = glueIn + aw[0] + aw[1] + aw[2] + aw[3];
   const calibreNote = fluteType === 'doble'
-    ? 'CALIBRE: pared doble ≈ 7 mm — mayor resistencia / estiba / exportación'
-    : 'CALIBRE: pared sencilla ≈ 4 mm — uso ligero a estándar';
+    ? 'DESARROLLO con calibre incluido · flauta doble (pared ≈ 1/8")'
+    : 'DESARROLLO con calibre incluido · flauta sencilla (pared ≈ 1/16")';
 
-  // ponytail: U mantiene la geometría en magnitud mm para que tamaños de fuente y
-  // separación de cotas queden proporcionados; las etiquetas muestran pulgadas.
+  // ponytail: U mantiene la geometría en magnitud mm para proporciones de fuente/cotas.
   const U = 25.4;
-  const pL = inL * U, pW = inW * U, fD = flapIn * U, HD = inH * U, gD = glueIn * U;
+  const awD = aw.map(v => v * U);
+  const fD = flapIn * U, HD = bodyIn * U, gD = glueIn * U;
 
-  const totalWidth = gD + 2 * pL + 2 * pW;
+  const totalWidth = gD + awD[0] + awD[1] + awD[2] + awD[3];
   const totalHeight = 2 * fD + HD;
 
-  // Coordenadas: pestaña de pega (0..gD), luego 4 paneles L,W,L,W
+  // Coordenadas: pestaña de pega (0..gD), luego 4 paneles ajustados por calibre
   const gx0 = 0, px0 = gD;
-  const px1 = px0 + pL, px2 = px1 + pW, px3 = px2 + pL, px4 = px3 + pW;
+  const px1 = px0 + awD[0], px2 = px1 + awD[1], px3 = px2 + awD[2], px4 = px3 + awD[3];
   const yTop = 0, yb1 = fD, yb2 = fD + HD, yBot = 2 * fD + HD;
   const cy = (yb1 + yb2) / 2;
 
   const panels = [
-    { x: px0, w: pL, dim: inL, name: 'FRENTE' },
-    { x: px1, w: pW, dim: inW, name: 'LATERAL' },
-    { x: px2, w: pL, dim: inL, name: 'TRASERA' },
-    { x: px3, w: pW, dim: inW, name: 'LATERAL' }
+    { x: px0, w: awD[0], dim: aw[0], name: 'FRENTE' },
+    { x: px1, w: awD[1], dim: aw[1], name: 'LATERAL' },
+    { x: px2, w: awD[2], dim: aw[2], name: 'TRASERA' },
+    { x: px3, w: awD[3], dim: aw[3], name: 'LATERAL' }
   ];
   const innerX = [px1, px2, px3]; // dobleces (en el cuerpo) y ranuras (en los flaps)
 
@@ -1182,13 +1194,13 @@ function generateDieline() {
 
         <!-- flap depth dentro de los flaps -->
         <g fill="rgba(255,255,255,0.6)" font-family="Outfit" font-size="32" font-weight="600" text-anchor="middle">
-          <text x="${px0 + pL / 2}" y="${yb1 / 2 + 11}">flap ${fmt(flapIn)}"</text>
-          <text x="${px0 + pL / 2}" y="${yb2 + (yBot - yb2) / 2 + 11}">flap ${fmt(flapIn)}"</text>
+          <text x="${px0 + awD[0] / 2}" y="${yb1 / 2 + 11}">flap ${toFrac(flapIn)}"</text>
+          <text x="${px0 + awD[0] / 2}" y="${yb2 + (yBot - yb2) / 2 + 11}">flap ${toFrac(flapIn)}"</text>
         </g>
 
         <!-- cotas de ancho de panel (arriba) -->
         <g fill="#ffffff" font-family="Outfit" font-size="42" font-weight="700" text-anchor="middle">
-          ${panels.map(p => `<text x="${p.x + p.w / 2}" y="-22">${fmt(p.dim)}"</text>`).join('')}
+          ${panels.map(p => `<text x="${p.x + p.w / 2}" y="-22">${toFrac(p.dim)}"</text>`).join('')}
         </g>
 
         <!-- líneas de cota -->
@@ -1201,8 +1213,8 @@ function generateDieline() {
           <line x1="${px4 + 18}" y1="${yb2}" x2="${px4 + 26}" y2="${yb2}" />
         </g>
         <g fill="#ffffff" font-family="Outfit" font-size="38" font-weight="700">
-          <text x="${(px0 + px4) / 2}" y="${yBot + 56}" text-anchor="middle">${fmt(totWIn)}" (TOTAL)</text>
-          <text x="${px4 + 34}" y="${cy + 12}" text-anchor="start">${fmt(inH)}"</text>
+          <text x="${(px0 + px4) / 2}" y="${yBot + 56}" text-anchor="middle">${toFrac(inTotalWidth)}" (TOTAL)</text>
+          <text x="${px4 + 34}" y="${cy + 12}" text-anchor="start">${toFrac(bodyIn)}"</text>
         </g>
       </g>
       <text x="14" y="22" fill="#8a99ad" font-family="Outfit" font-size="11" font-weight="700" letter-spacing="0.5">FEFCO 0201 · Caja Regular (RSC)</text>
