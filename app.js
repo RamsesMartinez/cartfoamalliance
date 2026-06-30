@@ -1326,10 +1326,11 @@ class Star {
 // giro lento y rígido (no se enrolla), núcleo luminoso suave. Conserva eventRadius/lensRadius
 // para el sutil efecto gravitacional sobre las estrellas.
 class BlackHole {
-  constructor(xPercent, yPixelOffset, size = 30) {
+  constructor(xPercent, yPixelOffset, size = 30, parallax = 0.4) {
     this.xPercent = xPercent;
     this.yPixelOffset = yPixelOffset;
     this.size = size;
+    this.parallax = parallax; // <1: se desplaza más lento que la página (profundidad / paralaje)
     this.coreRadius = size * 0.7;
     this.eventRadius = size;            // usado por Star.update (límite interno)
     this.galaxyRadius = size * 5.0;
@@ -1345,7 +1346,7 @@ class BlackHole {
     const arms = 2 + (Math.random() > 0.5 ? 1 : 0); // 2 o 3 brazos
     const turns = 0.55 + Math.random() * 0.35;       // cuánto se enrollan los brazos
     this.particles = [];
-    const N = 150;
+    const N = Math.round(this.size * 2.6); // densidad proporcional al tamaño
     for (let i = 0; i < N; i++) {
       // densidad mayor hacia el centro (sqrt) y un poco de campo difuso fuera de los brazos
       const t = Math.sqrt(Math.random());
@@ -1377,7 +1378,7 @@ class BlackHole {
 
   update(canvas, scrollY, scrollVelocity) {
     this.x = canvas.width * this.xPercent;
-    this.y = this.yPixelOffset - scrollY;
+    this.y = this.yPixelOffset - scrollY * this.parallax;
 
     let speedFactor = 1.0;
     if (Math.abs(scrollVelocity) > 10) {
@@ -1436,9 +1437,11 @@ function initSpaceBackground() {
     stars.push(new Star(spaceCanvas));
   }
   
-  blackHoles.push(new BlackHole(0.85, 1200, 25));
-  blackHoles.push(new BlackHole(0.12, 2800, 22));
-  blackHoles.push(new BlackHole(0.88, 3800, 28));
+  // Galaxias grandes (predominantes) con distinto factor de paralaje → profundidad
+  blackHoles.push(new BlackHole(0.80, 900,  78, 0.45));
+  blackHoles.push(new BlackHole(0.16, 2400, 64, 0.62));
+  blackHoles.push(new BlackHole(0.92, 4000, 92, 0.32));
+  blackHoles.push(new BlackHole(0.30, 5600, 58, 0.52));
   
   function loop() {
     requestAnimationFrame(loop);
